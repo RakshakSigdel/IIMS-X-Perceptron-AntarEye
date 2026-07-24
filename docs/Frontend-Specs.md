@@ -1,3 +1,4 @@
+<!-- markdownlint-disable MD013 MD024 MD025 MD060 -->
 # Frontend Specification
 
 ## Purpose
@@ -6,7 +7,7 @@ Defines the application routes, pages, layouts, navigation, and access rules.
 
 ---
 
-# Route Groups
+## Route Groups
 
 ```text
 (public)
@@ -17,9 +18,9 @@ Defines the application routes, pages, layouts, navigation, and access rules.
 
 ---
 
-# Public
+## Public
 
-## Landing
+### Landing
 
 Route
 
@@ -34,9 +35,9 @@ Purpose
 
 ---
 
-# Authentication
+## Authentication
 
-## Login
+### Login
 
 ```text
 /login
@@ -49,9 +50,9 @@ Purpose
 
 ---
 
-# Doctor
+## Doctor
 
-## Dashboard
+### Doctor Dashboard
 
 ```text
 /doctor
@@ -65,7 +66,7 @@ Displays
 
 ---
 
-## Patients
+### Patients
 
 ```text
 /doctor/patients
@@ -86,7 +87,7 @@ Actions
 
 ---
 
-## New Patient
+### New Patient
 
 ```text
 /doctor/patients/new
@@ -98,7 +99,7 @@ Create patient.
 
 ---
 
-## Patient Details
+### Patient Details
 
 ```text
 /doctor/patients/[patientId]
@@ -116,7 +117,7 @@ Actions
 
 ---
 
-## Edit Patient
+### Edit Patient
 
 ```text
 /doctor/patients/[patientId]/edit
@@ -128,7 +129,7 @@ Update patient information.
 
 ---
 
-## Diagnosis
+### Diagnosis
 
 ```text
 /doctor/diagnosis/[diagnosisId]
@@ -146,9 +147,9 @@ Displays
 
 ---
 
-# Admin
+## Admin
 
-## Dashboard
+### Admin Dashboard
 
 ```text
 /admin
@@ -162,7 +163,7 @@ Displays
 
 ---
 
-## Doctors
+### Doctors
 
 ```text
 /admin/doctors
@@ -180,7 +181,7 @@ Actions
 
 ---
 
-## New Doctor
+### New Doctor
 
 ```text
 /admin/doctors/new
@@ -192,7 +193,7 @@ Create doctor account.
 
 ---
 
-## Edit Doctor
+### Edit Doctor
 
 ```text
 /admin/doctors/[doctorId]/edit
@@ -204,9 +205,9 @@ Update doctor information.
 
 ---
 
-# Shared Pages
+## Shared Pages
 
-## Profile
+### Profile
 
 ```text
 /profile
@@ -218,36 +219,36 @@ Manage personal profile.
 
 ---
 
-# Navigation
+## Navigation
 
-## Doctor
+### Doctor Navigation
 
 - Dashboard
 - Patients
 
-## Admin
+### Admin Navigation
 
 - Dashboard
 - Doctors
 
 ---
 
-# Layouts
+## Layouts
 
-## Public Layout
+### Public Layout
 
 - Navbar
 - Footer
 
 ---
 
-## Auth Layout
+### Auth Layout
 
 - Centered authentication card
 
 ---
 
-## Doctor Layout
+### Doctor Layout
 
 - Sidebar
 - Header
@@ -255,7 +256,7 @@ Manage personal profile.
 
 ---
 
-## Admin Layout
+### Admin Layout
 
 - Sidebar
 - Header
@@ -263,10 +264,10 @@ Manage personal profile.
 
 ---
 
-# Authorization
+## Authorization
 
 | Page | Admin | Doctor |
-|-------|:-----:|:------:|
+| ------- | :-----: | :------: |
 | Landing | ✅ | ✅ |
 | Login | ✅ | ✅ |
 | Admin Dashboard | ✅ | ❌ |
@@ -278,7 +279,7 @@ Manage personal profile.
 
 ---
 
-# Design Rules
+## Design Rules
 
 - Responsive-first
 - Accessible

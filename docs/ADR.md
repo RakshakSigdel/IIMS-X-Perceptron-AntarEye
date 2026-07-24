@@ -1,3 +1,4 @@
+<!-- markdownlint-disable MD024 MD025 MD013 -->
 # Architecture Decision Record (ADR)
 
 This document records important architectural decisions made throughout the project.
@@ -11,7 +12,7 @@ Status values:
 
 ---
 
-# ADR-001
+## ADR-001
 
 ## Title
 
@@ -49,7 +50,7 @@ The application serves as both:
 
 ---
 
-# ADR-002
+## ADR-002
 
 ## Title
 
@@ -90,7 +91,7 @@ Authentication is handled using Supabase Auth.
 
 ---
 
-# ADR-003
+## ADR-003
 
 ## Title
 
@@ -120,7 +121,7 @@ Modules own their business logic and communicate only through exported services.
 
 ---
 
-# ADR-004
+## ADR-004
 
 ## Title
 
@@ -152,7 +153,7 @@ No Repository Pattern.
 
 ---
 
-# ADR-005
+## ADR-005
 
 ## Title
 
@@ -185,7 +186,7 @@ Do not use an ORM.
 
 ---
 
-# ADR-006
+## ADR-006
 
 ## Title
 
@@ -217,7 +218,7 @@ Existing diagnosis sessions are never modified after completion.
 
 ---
 
-# ADR-007
+## ADR-007
 
 ## Title
 
@@ -247,7 +248,7 @@ Generate signed or public URLs when required.
 
 ---
 
-# ADR-008
+## ADR-008
 
 ## Title
 
@@ -279,7 +280,7 @@ Create DTOs manually.
 
 ---
 
-# ADR-009
+## ADR-009
 
 ## Title
 

@@ -1,13 +1,14 @@
 erDiagram
 
-    doctor_profiles ||--o{ patients : manages
-    doctor_profiles ||--o{ diagnosis_sessions : performs
+    user_profiles ||--o{ patients : manages
+    user_profiles ||--o{ diagnosis_sessions : performs
     patients ||--o{ diagnosis_sessions : has
-    doctor_profiles ||--o{ audit_logs : performs
+    user_profiles ||--o{ audit_logs : performs
 
-    doctor_profiles {
+    user_profiles {
         uuid id PK
         uuid auth_user_id UK
+        string role
         string full_name
         string email
         datetime created_at
@@ -33,6 +34,7 @@ erDiagram
         uuid doctor_id FK
 
         string status
+        string triage_level
 
         string original_image_path
         string heatmap_image_path

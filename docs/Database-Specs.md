@@ -1,3 +1,4 @@
+<!-- markdownlint-disable MD013 MD024 MD025 MD060 -->
 # Database Specification
 
 ## Purpose
@@ -6,7 +7,7 @@ Defines the PostgreSQL schema, constraints, indexes, RLS policies, storage bucke
 
 ---
 
-# Naming Conventions
+## Naming Conventions
 
 - snake_case for tables and columns.
 - UUID primary keys.
@@ -15,13 +16,13 @@ Defines the PostgreSQL schema, constraints, indexes, RLS policies, storage bucke
 
 ---
 
-# PostgreSQL Extensions
+## PostgreSQL Extensions
 
 - pgcrypto
 
 ---
 
-# Enums
+## Enums
 
 ## user_role
 
@@ -48,14 +49,15 @@ Defines the PostgreSQL schema, constraints, indexes, RLS policies, storage bucke
 
 ---
 
-# Tables
+## Tables
 
-## doctor_profiles
+## user_profiles
 
 | Column | Type | Notes |
-|---------|------|------|
+| --------- | ------ | ------ |
 | id | uuid | PK |
 | auth_user_id | uuid | FK → auth.users.id |
+| role | user_role | |
 | full_name | text | |
 | email | text | Unique |
 | created_at | timestamptz | |
@@ -66,9 +68,9 @@ Defines the PostgreSQL schema, constraints, indexes, RLS policies, storage bucke
 ## patients
 
 | Column | Type | Notes |
-|---------|------|------|
+| --------- | ------ | ------ |
 | id | uuid | PK |
-| doctor_id | uuid | FK |
+| doctor_id | uuid | FK → user_profiles.id |
 | first_name | text | |
 | last_name | text | |
 | date_of_birth | date | |
@@ -83,11 +85,12 @@ Defines the PostgreSQL schema, constraints, indexes, RLS policies, storage bucke
 ## diagnosis_sessions
 
 | Column | Type | Notes |
-|---------|------|------|
+| --------- | ------ | ------ |
 | id | uuid | PK |
-| patient_id | uuid | FK |
-| doctor_id | uuid | FK |
+| patient_id | uuid | FK → patients.id |
+| doctor_id | uuid | FK → user_profiles.id |
 | status | diagnosis_status | |
+| triage_level | text | Nullable |
 | original_image_storage_path | text | |
 | heatmap_storage_path | text | Nullable |
 | report_storage_path | text | Nullable |
@@ -105,7 +108,7 @@ Defines the PostgreSQL schema, constraints, indexes, RLS policies, storage bucke
 ## diagnosis_status_history
 
 | Column | Type | Notes |
-|---------|------|------|
+| --------- | ------ | ------- |
 | id | uuid | PK |
 | diagnosis_session_id | uuid | FK |
 | status | diagnosis_status | |
@@ -116,9 +119,9 @@ Defines the PostgreSQL schema, constraints, indexes, RLS policies, storage bucke
 ## audit_logs
 
 | Column | Type | Notes |
-|---------|------|------|
+| --------- | ------ | ------- |
 | id | uuid | PK |
-| actor_id | uuid | FK |
+| actor_id | uuid | FK → user_profiles.id |
 | entity_type | text | |
 | entity_id | uuid | |
 | action | text | |
@@ -127,18 +130,18 @@ Defines the PostgreSQL schema, constraints, indexes, RLS policies, storage bucke
 
 ---
 
-# Foreign Keys
+## Foreign Keys
 
-- doctor_profiles.auth_user_id → auth.users.id
-- patients.doctor_id → doctor_profiles.id
+- user_profiles.auth_user_id → auth.users.id
+- patients.doctor_id → user_profiles.id
 - diagnosis_sessions.patient_id → patients.id
-- diagnosis_sessions.doctor_id → doctor_profiles.id
+- diagnosis_sessions.doctor_id → user_profiles.id
 - diagnosis_status_history.diagnosis_session_id → diagnosis_sessions.id
-- audit_logs.actor_id → doctor_profiles.id
+- audit_logs.actor_id → user_profiles.id
 
 ---
 
-# Indexes
+## Indexes
 
 - patients(doctor_id)
 - diagnosis_sessions(patient_id)
@@ -150,9 +153,9 @@ Defines the PostgreSQL schema, constraints, indexes, RLS policies, storage bucke
 
 ---
 
-# Row Level Security
+## Row Level Security
 
-## doctor_profiles
+### user_profiles
 
 Doctors can read and update only their own profile.
 
@@ -160,7 +163,7 @@ Admins have full access.
 
 ---
 
-## patients
+### patients
 
 Doctors can access only their own patients.
 
@@ -168,7 +171,7 @@ Admins have read-only access.
 
 ---
 
-## diagnosis_sessions
+### diagnosis_sessions
 
 Doctors can access only diagnoses they created.
 
@@ -176,33 +179,33 @@ Admins have read-only access.
 
 ---
 
-## audit_logs
+### audit_logs
 
 Admins only.
 
 ---
 
-# Storage Buckets
+## Storage Buckets
 
-## fundus-images
-
-Private bucket.
-
----
-
-## heatmaps
+### fundus-images
 
 Private bucket.
 
 ---
 
-## reports
+### heatmaps
 
 Private bucket.
 
 ---
 
-# Migration Strategy
+### reports
+
+Private bucket.
+
+---
+
+## Migration Strategy
 
 - All schema changes use SQL migrations.
 - Never modify previous migrations.
@@ -210,7 +213,7 @@ Private bucket.
 
 ---
 
-# Type Generation
+## Type Generation
 
 Database types are generated using the Supabase CLI.
 
@@ -218,7 +221,7 @@ The generated file must never be edited manually.
 
 ---
 
-# Seed Data
+## Seed Data
 
 Initial seed includes:
 

@@ -1,3 +1,4 @@
+<!-- markdownlint-disable MD013 MD024 MD025 MD060 -->
 # API Specification
 
 ## Purpose
@@ -8,7 +9,7 @@ The frontend communicates **only** with these endpoints.
 
 ---
 
-# Authentication
+## Authentication
 
 ## Login
 
@@ -34,12 +35,12 @@ The frontend communicates **only** with these endpoints.
 
 ---
 
-# Admin
+## Admin
 
-## Doctors
+### Doctors
 
 | Method | Endpoint | Purpose |
-|---------|----------|---------|
+| --------- | ---------- | --------- |
 | GET | `/api/admin/doctors` | List doctors |
 | POST | `/api/admin/doctors` | Create doctor |
 | GET | `/api/admin/doctors/:id` | Get doctor |
@@ -48,10 +49,10 @@ The frontend communicates **only** with these endpoints.
 
 ---
 
-# Patients
+## Patients
 
 | Method | Endpoint | Purpose |
-|---------|----------|---------|
+| --------- | ---------- | --------- |
 | GET | `/api/patients` | List patients |
 | POST | `/api/patients` | Create patient |
 | GET | `/api/patients/:id` | Get patient |
@@ -60,10 +61,10 @@ The frontend communicates **only** with these endpoints.
 
 ---
 
-# Diagnosis Sessions
+## Diagnosis Sessions
 
 | Method | Endpoint | Purpose |
-|---------|----------|---------|
+| --------- | ---------- | --------- |
 | GET | `/api/diagnosis` | List diagnosis sessions |
 | POST | `/api/diagnosis` | Create diagnosis session |
 | GET | `/api/diagnosis/:id` | Get diagnosis details |
@@ -71,7 +72,7 @@ The frontend communicates **only** with these endpoints.
 
 ---
 
-# Dashboard
+## Dashboard
 
 | Method | Endpoint | Purpose |
 |---------|----------|---------|
@@ -79,10 +80,10 @@ The frontend communicates **only** with these endpoints.
 
 ---
 
-# Authorization
+## Authorization
 
 | Endpoint Group | Admin | Doctor |
-|----------------|:----:|:------:|
+| ---------------- | :----: | :------: |
 | Authentication | ✅ | ✅ |
 | Dashboard | ✅ | ✅ |
 | Doctor Management | ✅ | ❌ |
@@ -91,7 +92,7 @@ The frontend communicates **only** with these endpoints.
 
 ---
 
-# General Rules
+## General Rules
 
 - All endpoints return JSON except PDF downloads.
 - All requests are validated on the server.

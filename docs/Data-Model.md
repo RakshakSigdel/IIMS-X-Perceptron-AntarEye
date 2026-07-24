@@ -1,3 +1,4 @@
+<!-- markdownlint-disable MD013 MD024 MD025 MD060 -->
 # Data Model
 
 ## Purpose
@@ -6,7 +7,7 @@ Defines every application model used throughout the system before database imple
 
 ---
 
-# Core Models
+## Core Models
 
 ## Admin
 
@@ -34,6 +35,7 @@ Owns:
 
 - Fundus Image
 - AI Prediction
+- LLM Recommendations
 - Heatmap
 - Medical Report
 - Triage Result
@@ -42,9 +44,10 @@ Owns:
 
 ## Fundus Image
 
-Metadata of the uploaded retinal image.
+Metadata and storage path of the uploaded retinal image.
 
-The actual file is stored in Supabase Storage.
+The actual file is stored in Supabase Storage (`fundus-images` bucket).
+The path is stored in the `diagnosis_sessions` table.
 
 ---
 
@@ -52,21 +55,25 @@ The actual file is stored in Supabase Storage.
 
 Stores the structured prediction returned by the AI service.
 
+Stored as JSON within the `diagnosis_sessions` table.
+
 ---
 
 ## Heatmap
 
-Metadata for the generated heatmap image.
+Metadata and storage path for the generated heatmap image.
 
-The actual file is stored in Supabase Storage.
+The actual file is stored in Supabase Storage (`heatmaps` bucket).
+The path is stored in the `diagnosis_sessions` table.
 
 ---
 
 ## Medical Report
 
-Metadata for the generated PDF report.
+Metadata and storage path for the generated PDF report.
 
-The actual PDF is stored in Supabase Storage.
+The actual PDF is stored in Supabase Storage (`reports` bucket).
+The path is stored in the `diagnosis_sessions` table.
 
 ---
 
@@ -74,9 +81,11 @@ The actual PDF is stored in Supabase Storage.
 
 Stores the calculated patient priority.
 
+Stored as a column (`triage_level`) in the `diagnosis_sessions` table to allow efficient patient sorting.
+
 ---
 
-# Infrastructure Models
+## Infrastructure Models
 
 These support the application but are not business entities.
 
@@ -87,7 +96,7 @@ These support the application but are not business entities.
 
 ---
 
-# Ownership
+## Ownership
 
 User
 └── Admin OR Doctor
@@ -101,13 +110,14 @@ Patient
 Diagnosis Session
 ├── Fundus Image
 ├── AI Prediction
+├── LLM Recommendations
 ├── Heatmap
 ├── Medical Report
 └── Triage Result
 
 ---
 
-# Storage Responsibility
+## Storage Responsibility
 
 Database
 
@@ -117,9 +127,9 @@ Database
 
 Supabase Storage
 
-- Fundus images
-- Heatmaps
-- Reports
+- Fundus images (`fundus-images`)
+- Heatmaps (`heatmaps`)
+- Reports (`reports`)
 
 AI Service
 
@@ -128,16 +138,16 @@ AI Service
 
 ---
 
-# Model Mapping
+## Model Mapping
 
 | Domain | Application Model | Database |
-|---------|-------------------|----------|
-| Admin | Admin | profiles |
-| Doctor | Doctor | profiles |
+| --------- | ------------------- | ---------- |
+| Admin | Admin | user_profiles |
+| Doctor | Doctor | user_profiles |
 | Patient | Patient | patients |
 | Diagnosis Session | Diagnosis Session | diagnosis_sessions |
-| Fundus Image | Fundus Image | fundus_images |
-| AI Prediction | AI Prediction | ai_predictions |
-| Heatmap | Heatmap | heatmaps |
-| Medical Report | Medical Report | reports |
-| Triage Result | Triage Result | triage_results |
+| Fundus Image | Fundus Image | diagnosis_sessions |
+| AI Prediction | AI Prediction | diagnosis_sessions |
+| Heatmap | Heatmap | diagnosis_sessions |
+| Medical Report | Medical Report | diagnosis_sessions |
+| Triage Result | Triage Result | diagnosis_sessions |

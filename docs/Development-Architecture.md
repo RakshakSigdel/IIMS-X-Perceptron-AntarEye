@@ -1,12 +1,14 @@
+<!-- markdownlint-disable MD013 MD024 MD025 MD060 -->
 # Development Architecture
 
 ## Purpose
 
-Defines the development architecture, project organization, coding conventions, and dependency rules.
+Defines the development architecture, project organization, coding conventions,
+and dependency rules.
 
 ---
 
-# Architecture Style
+## Architecture Style
 
 - Modular Monolith
 - Domain-Oriented Design (lightweight)
@@ -16,7 +18,7 @@ Defines the development architecture, project organization, coding conventions, 
 
 ---
 
-# Request Flow
+## Request Flow
 
 ```text
 Browser
@@ -32,7 +34,7 @@ Business logic exists only inside module services.
 
 ---
 
-# Project Structure
+## Project Structure
 
 ```text
 frontend/
@@ -49,7 +51,7 @@ frontend/
 
 ---
 
-# Module Structure
+## Module Structure
 
 ```text
 module/
@@ -65,9 +67,9 @@ module/
 
 ---
 
-# Responsibilities
+## Responsibilities
 
-## app/
+### app/
 
 - Routing
 - Layouts
@@ -78,7 +80,7 @@ No business logic.
 
 ---
 
-## modules/
+### modules/
 
 Owns all business logic.
 
@@ -93,7 +95,7 @@ Each module owns:
 
 ---
 
-## lib/
+### lib/
 
 Shared infrastructure.
 
@@ -109,7 +111,7 @@ Never place business logic here.
 
 ---
 
-## components/
+### components/
 
 Reusable presentation components.
 
@@ -117,7 +119,7 @@ Business-specific components belong inside their respective route segment.
 
 ---
 
-## hooks/
+### hooks/
 
 Reusable React hooks.
 
@@ -125,7 +127,7 @@ Feature-specific hooks remain inside the owning module.
 
 ---
 
-# Dependency Rules
+## Dependency Rules
 
 Allowed
 
@@ -155,14 +157,14 @@ Modules communicate only through exported services.
 
 ---
 
-# Validation
+## Validation
 
 - Zod for request validation.
 - Validation occurs before entering services.
 
 ---
 
-# DTOs
+## DTOs
 
 DTOs define API contracts.
 
@@ -170,7 +172,7 @@ Database models must never be returned directly.
 
 ---
 
-# Database
+## Database
 
 - SQL-first migrations.
 - Generated Supabase types.
@@ -179,7 +181,7 @@ Database models must never be returned directly.
 
 ---
 
-# File Storage
+## File Storage
 
 Store only storage paths.
 
@@ -187,21 +189,21 @@ Never store signed or public URLs.
 
 ---
 
-# Error Handling
+## Error Handling
 
 - Services throw domain errors.
 - Route Handlers map errors to HTTP responses.
 
 ---
 
-# Logging
+## Logging
 
 - Record business events in `audit_logs`.
 - Avoid logging sensitive patient information.
 
 ---
 
-# Coding Principles
+## Coding Principles
 
 - Keep services cohesive.
 - Prefer composition.

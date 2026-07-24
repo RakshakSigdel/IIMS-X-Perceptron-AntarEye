@@ -1,3 +1,4 @@
+<!-- markdownlint-disable MD013 MD048 MD024 MD025 MD060 -->
 # API Contract
 
 ## Purpose
@@ -17,6 +18,7 @@ The Next.js application owns all business logic, persistence, authentication, re
 - Accept retinal fundus images.
 - Run inference.
 - Generate Grad-CAM (heatmap).
+- Generate LLM recommendations.
 - Return prediction results.
 
 The service must not:
@@ -24,7 +26,6 @@ The service must not:
 - Authenticate users.
 - Access Supabase.
 - Generate reports.
-- Generate LLM recommendations.
 - Store application data.
 
 ---
@@ -37,7 +38,6 @@ The service must not:
 - Call FastAPI.
 - Persist results.
 - Generate reports.
-- Generate LLM recommendations.
 
 ---
 
@@ -96,7 +96,9 @@ Body
   },
   "predicted_class": "diabetic_retinopathy",
   "confidence": 0.81,
-  "heatmap": "<base64_png>"
+  "heatmap": "<base64_png>",
+  "llm_patient_recommendation": "Patient string here",
+  "llm_doctor_recommendation": "Doctor string here"
 }
 ~~~
 
@@ -208,6 +210,8 @@ The following response fields are considered stable:
 - predicted_class
 - confidence
 - heatmap
+- llm_patient_recommendation
+- llm_doctor_recommendation
 
 Breaking changes require coordination between both teams.
 
@@ -216,10 +220,10 @@ Breaking changes require coordination between both teams.
 # Ownership
 
 | Component | Owner |
-|-----------|-------|
+| ----------- | ------- |
 | AI Model | AI Team |
 | FastAPI API | AI Team |
 | Next.js BFF | Application Team |
 | Database | Application Team |
 | Reports | Application Team |
-| LLM Recommendations | Application Team |
+| LLM Recommendations | AI Team |

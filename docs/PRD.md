@@ -1,16 +1,21 @@
+<!-- markdownlint-disable MD013 MD024 MD025 MD060 -->
 # Product Vision
 
 ## Project - AntarEye
 
-AI-assisted retinal disease diagnosis platform for ophthalmologists and medical practitioners.
+AI-assisted retinal disease diagnosis platform for ophthalmologists and
+medical practitioners.
 
 ---
 
 ## Vision
 
-Provide doctors with an AI-assisted decision support system that accelerates retinal disease screening while maintaining patient records, diagnosis history, and medical reports in a single application.
+Provide doctors with an AI-assisted decision support system that accelerates
+retinal disease screening while maintaining patient records, diagnosis history,
+and medical reports in a single application.
 
-The system assists medical professionals and does not replace clinical judgment.
+The system assists medical professionals and does not replace clinical
+judgment.
 
 ---
 
@@ -18,7 +23,8 @@ The system assists medical professionals and does not replace clinical judgment.
 
 Manual retinal disease screening is time-consuming and depends on specialist expertise.
 
-Many clinics lack quick access to reliable screening tools, resulting in delayed diagnosis and treatment.
+Many clinics lack quick access to reliable screening tools, resulting in delayed
+diagnosis and treatment.
 
 ---
 
@@ -84,9 +90,11 @@ No authentication in MVP.
 
 The AI model is developed independently.
 
-AntarEye communicates with the AI service exclusively through its exposed FastAPI endpoints.
+AntarEye communicates with the AI service exclusively through its exposed
+FastAPI endpoints.
 
-Training, experimentation, and model development are outside the scope of this project.
+Training, experimentation, and model development are outside the scope of this
+project.
 
 ---
 

@@ -1,3 +1,4 @@
+<!-- markdownlint-disable MD013 MD024 MD025 MD060 -->
 # AntarEye
 >
 > Architecture & Development Guide (v1)
@@ -8,9 +9,12 @@
 
 AntarEye is an AI-assisted Software-as-a-Service (SaaS) platform for ophthalmologists and general medical practitioners.
 
-The platform assists doctors in diagnosing retinal diseases from Fundus Images while maintaining patient history, generating medical reports, and prioritizing patients using a triage system.
+The platform assists doctors in diagnosing retinal diseases from Fundus Images
+while maintaining patient history, generating medical reports, and prioritizing
+patients using a triage system.
 
-AntarEye is developed as a Hackathon MVP while keeping the architecture scalable for future production development.
+AntarEye is developed as a Hackathon MVP while keeping the architecture scalable
+for future production development.
 
 ---
 
@@ -30,7 +34,7 @@ The system is a decision-support tool and does **not** replace medical professio
 
 ## 3. Target Users
 
-### Super Admin
+### Admin
 
 - Seeded into database
 - Creates doctor accounts
@@ -307,7 +311,8 @@ AI Pipeline
 2. Image Quality Assessment
 3. Disease Detection
 4. Heatmap Generation
-5. Report Data Generation
+5. LLM Recommendations Generation
+6. Report Data Generation
 
 ↓
 
@@ -404,8 +409,7 @@ REST API will not be used directly.
 Supabase Storage
 
 ```txt
-patients/
-diagnosis/
+fundus-images/
 heatmaps/
 reports/
 ```
@@ -430,10 +434,10 @@ Prediction should not wait for report generation.
 
 Potential implementations:
 
-- FastAPI Background Tasks
 - Trigger.dev
 - BullMQ
 - PostgreSQL Queue Worker
+- Next.js Serverless Background Functions
 
 Final implementation to be decided.
 
@@ -451,7 +455,7 @@ RBAC
 
 Roles
 
-- Super Admin
+- Admin
 - Doctor
 - Patient
 
@@ -517,4 +521,6 @@ Review
 
 ## 21. Project Goal
 
-Deliver a production-quality MVP demonstrating AI-assisted retinal disease diagnosis while maintaining a clean, scalable architecture suitable for future expansion.
+Deliver a production-quality MVP demonstrating AI-assisted retinal disease
+diagnosis while maintaining a clean, scalable architecture suitable for future
+expansion.
