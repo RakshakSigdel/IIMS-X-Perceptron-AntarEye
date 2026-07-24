@@ -20,7 +20,7 @@ not begin work that belongs to a future phase.
 ## 2. Required Reading (in order)
 
 | Priority | Document | When to read |
-|----------|----------|-------------|
+| ---------- | ---------- | ------------- |
 | 1 | `docs/PROJECT_STATUS.md` | Always — before every task |
 | 2 | `docs/ADR.md` | Always — frozen decisions |
 | 3 | `docs/Development-Architecture.md` | Always — code structure rules |
@@ -40,7 +40,7 @@ not begin work that belongs to a future phase.
 These decisions are **frozen** (ADR status: Accepted). Do not deviate.
 
 | Rule | ADR |
-|------|-----|
+| ------ | ----- |
 | Single Next.js full-stack app (App Router) | ADR-001 |
 | Backend-for-Frontend — all business ops go through Route Handlers | ADR-002 |
 | Domain-Oriented Modular Monolith | ADR-003 |
@@ -174,7 +174,7 @@ const { data } = await supabase.from(TABLES.PATIENTS).select("*");
 ### 5.4 File Naming
 
 | Type | Convention | Example |
-|------|-----------|---------|
+| ------ | ----------- | --------- |
 | Components | PascalCase | `PatientCard.tsx` |
 | Services | kebab-case with `.service.ts` | `create-patient.service.ts` |
 | Schemas | kebab-case with `.schema.ts` | `create-patient.schema.ts` |
@@ -302,7 +302,7 @@ export async function POST(request: NextRequest) {
 - **Never manually edit generated types** (`src/types/database.types.ts`).
 - Use parameterized queries. Never interpolate user input into SQL.
 - Every query must be scoped to the authenticated user's data (RLS defense-in-depth
-  + application-level checks).
+  - application-level checks).
 
 ### 6.5 Environment Variables
 
@@ -495,7 +495,7 @@ Before finishing any task, verify:
 ## 13. Common Mistakes to Avoid
 
 | Mistake | Correct Approach |
-|---------|-----------------|
+| --------- | ----------------- |
 | Calling Supabase from a Client Component | Call your own API route instead |
 | Using `any` type | Use `unknown` and narrow with type guards |
 | Hardcoding color values (`bg-red-500`) | Use theme tokens (`bg-destructive`) |
