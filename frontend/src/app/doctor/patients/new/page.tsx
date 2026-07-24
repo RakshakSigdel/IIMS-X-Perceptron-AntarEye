@@ -1,8 +1,20 @@
+import { PageHeader } from "@/components/shared/PageHeader";
+import { PatientForm } from "@/modules/patients/components/PatientForm";
+
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "New Patient — AntarEye",
+};
+
 export default function NewPatientPage() {
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-4">Add New Patient</h1>
-      <p className="text-muted-foreground">Frontend teammate will implement this UI.</p>
+      <PageHeader
+        title="New Patient"
+        description="Create a new patient record"
+      />
+      <PatientForm mode="create" />
     </div>
   );
 }

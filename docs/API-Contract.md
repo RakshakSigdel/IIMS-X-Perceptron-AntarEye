@@ -87,7 +87,7 @@ HTTP
 
 Body
 
-~~~json
+```json
 {
   "prediction": {
     "normal": 0.12,
@@ -100,7 +100,7 @@ Body
   "llm_patient_recommendation": "Patient string here",
   "llm_doctor_recommendation": "Doctor string here"
 }
-~~~
+```
 
 Rules
 
@@ -120,11 +120,11 @@ HTTP
 400 Bad Request
 ```
 
-~~~json
+```json
 {
   "error": "Invalid image."
 }
-~~~
+```
 
 ---
 
@@ -136,11 +136,11 @@ HTTP
 415 Unsupported Media Type
 ```
 
-~~~json
+```json
 {
   "error": "Unsupported file type."
 }
-~~~
+```
 
 ---
 
@@ -152,11 +152,11 @@ HTTP
 500 Internal Server Error
 ```
 
-~~~json
+```json
 {
   "error": "Prediction failed."
 }
-~~~
+```
 
 ---
 
@@ -168,11 +168,11 @@ HTTP
 504 Gateway Timeout
 ```
 
-~~~json
+```json
 {
   "error": "Prediction timed out."
 }
-~~~
+```
 
 ---
 

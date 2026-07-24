@@ -1,8 +1,20 @@
+import { LoginForm } from "@/modules/auth/components/LoginForm";
+
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Sign In — AntarEye",
+  description: "Sign in to AntarEye to access the retinal disease diagnosis platform.",
+};
+
 export default function LoginPage() {
   return (
-    <div className="w-full max-w-md p-8 bg-card rounded-xl shadow-lg border border-border">
-      <h1 className="text-2xl font-bold mb-6 text-card-foreground">Login Placeholder</h1>
-      <p className="text-muted-foreground mb-4">Frontend teammate will implement this UI.</p>
-    </div>
+    <>
+      <h2 className="text-lg font-semibold text-foreground mb-1">Welcome back</h2>
+      <p className="text-sm text-muted-foreground mb-6">
+        Sign in to continue to your dashboard
+      </p>
+      <LoginForm />
+    </>
   );
 }

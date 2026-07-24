@@ -1,0 +1,61 @@
+"use client";
+
+import { useCallback, useEffect, useState } from "react";
+
+interface UseApiQueryOptions {
+  enabled?: boolean;
+}
+
+interface UseApiQueryResult<TData> {
+  data: TData | null;
+  isLoading: boolean;
+  error: string | null;
+  refetch: () => Promise<void>;
+}
+
+export function useApiQuery<TData>(
+  url: string | null,
+  options?: UseApiQueryOptions
+): UseApiQueryResult<TData> {
+  const [data, setData] = useState<TData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const enabled = options?.enabled ?? true;
+
+  const fetchData = useCallback(async (): Promise<void> => {
+    if (!url || !enabled) {
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({})) as Record<string, unknown>;
+        throw new Error(
+          (body.error as string) ?? `Request failed with status ${response.status}`
+        );
+      }
+
+      const result = (await response.json()) as TData;
+      setData(result);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "An unexpected error occurred";
+      setError(message);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [url, enabled]);
+
+  useEffect(() => {
+    void fetchData();
+  }, [fetchData]);
+
+  return { data, isLoading, error, refetch: fetchData };
+}
