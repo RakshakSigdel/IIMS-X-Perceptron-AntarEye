@@ -4,7 +4,7 @@ import { NotFoundError, ExternalServiceError } from "@/lib/errors";
 import { PATIENT_ERROR_MESSAGES } from "../constants";
 import { TABLES } from "@/lib/constants";
 import { mapToPatientDto } from "../mappers/patient.mapper";
-import { PatientDto } from "../dto/patient.dto";
+import { PatientDto, PatientUpdateDto } from "../dto/patient.dto";
 
 export async function updatePatientService(
   supabase: SupabaseClient,
@@ -12,8 +12,8 @@ export async function updatePatientService(
   dto: UpdatePatientRequestDto,
   doctorId: string
 ): Promise<PatientDto> {
-  // Ensure the patient belongs to the doctor and update
-  const updateData: any = { updated_at: new Date().toISOString() };
+
+  const updateData: PatientUpdateDto = { updated_at: new Date().toISOString() };
   if (dto.firstName !== undefined) updateData.first_name = dto.firstName;
   if (dto.lastName !== undefined) updateData.last_name = dto.lastName;
   if (dto.dateOfBirth !== undefined) updateData.date_of_birth = dto.dateOfBirth;

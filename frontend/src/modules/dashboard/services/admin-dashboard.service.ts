@@ -33,7 +33,8 @@ export async function getAdminDashboardService(
       totalDiagnoses: totalDiagnoses || 0,
       recentActivity: recentActivity || [],
     };
-  } catch (error: any) {
-    throw new ExternalServiceError(`Failed to fetch admin dashboard: ${error.message}`);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new ExternalServiceError(`Failed to fetch admin dashboard: ${message}`);
   }
 }

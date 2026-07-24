@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { AppError, ValidationError } from "../errors";
 
-export function successResponse<T>(data: T, status: number = 200, meta?: any) {
+export function successResponse<T>(data: T, status: number = 200, meta?: unknown) {
   return NextResponse.json({ data, error: null, meta }, { status });
 }
 

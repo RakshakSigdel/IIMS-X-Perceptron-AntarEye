@@ -10,22 +10,30 @@ import { randomUUID } from "crypto";
 export async function generateReportService(
   supabase: SupabaseClient,
   diagnosisId: string,
-  doctorId: string
+  doctorId: string,
 ): Promise<{ reportUrl: string }> {
   // 1. Fetch data needed for report
   const diagnosis = await getDiagnosisService(supabase, diagnosisId, doctorId);
-  const patient = await getPatientService(supabase, diagnosis.patientId, doctorId);
-  
+  const patient = await getPatientService(
+    supabase,
+    diagnosis.patientId,
+    doctorId,
+  );
+
   if (diagnosis.status !== DiagnosisStatus.COMPLETED) {
-    throw new ExternalServiceError("Cannot generate report for incomplete diagnosis");
+    throw new ExternalServiceError(
+      "Cannot generate report for incomplete diagnosis",
+    );
   }
 
   try {
     // 2. Generate PDF (Placeholder for actual @react-pdf/renderer logic)
     // Normally we'd do: const pdfStream = await ReactPDF.renderToStream(<ReportDocument data={...} />);
     // For now we create a dummy text file to represent the PDF since we don't have the React component here.
-    const pdfBuffer = Buffer.from(`AntarEye Diagnosis Report for ${patient.firstName} ${patient.lastName}\nDiagnosis ID: ${diagnosisId}\nStatus: ${diagnosis.status}\nPredicted Class: ${diagnosis.predictionSummary.predictedClass}\nConfidence: ${diagnosis.predictionSummary.confidence}`);
-    
+    const pdfBuffer = Buffer.from(
+      `AntarEye Diagnosis Report for ${patient.firstName} ${patient.lastName}\nDiagnosis ID: ${diagnosisId}\nStatus: ${diagnosis.status}\nPredicted Class: ${diagnosis.predictionSummary.predictedClass}\nConfidence: ${diagnosis.predictionSummary.confidence}`,
+    );
+
     // 3. Upload to storage
     const fileName = `${patient.id}/report_${diagnosisId}_${randomUUID()}.pdf`;
     const { error: uploadError } = await supabase.storage
@@ -49,7 +57,9 @@ export async function generateReportService(
       .createSignedUrl(fileName, 3600);
 
     return { reportUrl: signedData?.signedUrl || "" };
-  } catch (error: any) {
-    throw new ExternalServiceError(`Failed to generate report: ${error.message}`);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+
+    throw new ExternalServiceError(`Failed to generate report: ${message}`);
   }
 }

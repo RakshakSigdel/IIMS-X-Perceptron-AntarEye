@@ -47,7 +47,8 @@ export async function getDoctorDashboardService(
       recentDiagnoses: recentDiagnoses || [],
       highPriorityPatients: highPriorityCount || 0,
     };
-  } catch (error: any) {
-    throw new ExternalServiceError(`Failed to fetch doctor dashboard: ${error.message}`);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new ExternalServiceError(`Failed to fetch doctor dashboard: ${message}`);
   }
 }

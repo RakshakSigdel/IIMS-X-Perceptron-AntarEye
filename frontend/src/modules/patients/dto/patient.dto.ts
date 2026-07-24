@@ -12,3 +12,13 @@ export interface PatientDto {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface PatientUpdateDto {
+    updated_at: string;
+    first_name?: string;
+    last_name?: string;
+    date_of_birth?: Date;
+    gender?: string;
+    phone?: string | null;
+    address?: string | null;
+}

@@ -4,7 +4,7 @@ import { getCurrentUserService } from "@/modules/auth";
 import { getAdminDashboardService, getDoctorDashboardService } from "@/modules/dashboard";
 import { NextResponse, type NextRequest } from "next/server";
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const supabase = await createServiceClient();
     const userSession = await getCurrentUserService(supabase);

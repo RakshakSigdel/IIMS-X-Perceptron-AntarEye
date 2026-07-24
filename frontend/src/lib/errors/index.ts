@@ -30,9 +30,9 @@ export class UnauthorizedError extends AppError {
 }
 
 export class ValidationError extends AppError {
-  public readonly errors?: any;
+  public readonly errors?: Record<string, unknown>;
 
-  constructor(message: string = "Validation failed", errors?: any) {
+  constructor(message: string = "Validation failed", errors?: Record<string, unknown>) {
     super(message, 400);
     this.errors = errors;
   }

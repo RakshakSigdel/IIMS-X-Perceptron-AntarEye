@@ -1,4 +1,13 @@
 import { DiagnosisStatus } from "@/lib/constants";
+import { AiResponseDto } from "@/modules/ai/schemas/ai-response.schema";
+import { TriageLevel } from "@/modules/triage/constants";
+
+export interface PredictionSummary {
+  predictedClass: string;
+  confidence: number;
+  triageLevel: TriageLevel;
+  probabilities: Record<string, number>;
+}
 
 export interface DiagnosisDto {
   id: string;
@@ -10,8 +19,8 @@ export interface DiagnosisDto {
   heatmapStoragePath: string | null;
   heatmapUrl?: string | null; // Signed URL added by get service
   reportStoragePath: string | null;
-  predictionSummary: any;
-  aiResponse: any;
+  predictionSummary: PredictionSummary | Record<string, unknown>;
+  aiResponse: AiResponseDto | Record<string, unknown>;
   llmPatientRecommendation: string | null;
   llmDoctorRecommendation: string | null;
   startedAt: string;

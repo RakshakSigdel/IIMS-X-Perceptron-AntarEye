@@ -6,7 +6,7 @@ import { createPatientSchema, createPatientService, listPatientsService } from "
 import { type NextRequest } from "next/server";
 import { z } from "zod";
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const supabase = await createServiceClient();
     const userSession = await getCurrentUserService(supabase);

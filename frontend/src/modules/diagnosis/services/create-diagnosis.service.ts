@@ -109,13 +109,14 @@ export async function createDiagnosisService(
     if (completeError) throw completeError;
     return mapToDiagnosisDto(finalSession);
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     // On failure, mark as FAILED
     await supabase
       .from(TABLES.DIAGNOSIS_SESSIONS)
       .update({ status: DiagnosisStatus.FAILED })
       .eq("id", session.id);
-      
-    throw new ExternalServiceError(`${DIAGNOSIS_ERROR_MESSAGES.AI_FAILED}: ${error.message}`);
+
+    const message = error instanceof Error ? error.message : String(error);
+    throw new ExternalServiceError(`${DIAGNOSIS_ERROR_MESSAGES.AI_FAILED}: ${message}`);
   }
 }
