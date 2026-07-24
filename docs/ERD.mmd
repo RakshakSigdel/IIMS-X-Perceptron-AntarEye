@@ -1,0 +1,62 @@
+erDiagram
+
+    doctor_profiles ||--o{ patients : manages
+    doctor_profiles ||--o{ diagnosis_sessions : performs
+    patients ||--o{ diagnosis_sessions : has
+    doctor_profiles ||--o{ audit_logs : performs
+
+    doctor_profiles {
+        uuid id PK
+        uuid auth_user_id UK
+        string full_name
+        string email
+        datetime created_at
+        datetime updated_at
+    }
+
+    patients {
+        uuid id PK
+        uuid doctor_id FK
+        string first_name
+        string last_name
+        date date_of_birth
+        string gender
+        string phone
+        string address
+        datetime created_at
+        datetime updated_at
+    }
+
+    diagnosis_sessions {
+        uuid id PK
+        uuid patient_id FK
+        uuid doctor_id FK
+
+        string status
+
+        string original_image_path
+        string heatmap_image_path
+        string report_pdf_path
+
+        jsonb prediction_summary
+        jsonb ai_response
+
+        string llm_patient_recommendation
+        string llm_doctor_recommendation
+
+        datetime started_at
+        datetime completed_at
+
+        datetime created_at
+        datetime updated_at
+    }
+
+    audit_logs {
+        uuid id PK
+        uuid actor_id FK
+        string entity_type
+        uuid entity_id
+        string action
+        jsonb metadata
+        datetime created_at
+    }
