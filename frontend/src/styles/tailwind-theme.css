@@ -1,11 +1,3 @@
-/* ============================================================
-   AntarEye Design System — single source of truth
-   primary  → deep retinal burgundy/red (clinical actions, brand)
-   accent   → soft medical cyan (interactive/informational)
-   warning  → optic-disc amber (highlights, severity flags)
-   sidebar/* → dark wine "vignette" (app chrome, both modes)
-   ============================================================ */
-
 :root {
   --radius: 0.5rem;
   --spacing: 0.25rem;
