@@ -3,7 +3,7 @@
 import { use } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
-import { cn } from "@/lib/utils";
+
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { PatientDiagnosisHistory } from "@/modules/patients/components/PatientDiagnosisHistory";

@@ -54,7 +54,8 @@ export function useApiQuery<TData>(
   }, [url, enabled]);
 
   useEffect(() => {
-    void fetchData();
+    const timeout = setTimeout(() => void fetchData(), 0);
+    return () => clearTimeout(timeout);
   }, [fetchData]);
 
   return { data, isLoading, error, refetch: fetchData };

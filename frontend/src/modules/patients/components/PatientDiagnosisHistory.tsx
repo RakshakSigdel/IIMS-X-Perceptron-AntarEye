@@ -7,8 +7,6 @@ import { StatusBadge } from "@/components/shared/StatusBadge";
 import { TriageBadge } from "@/components/shared/TriageBadge";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { PAGE_ROUTES } from "@/lib/constants";
-import { DiagnosisStatus } from "@/lib/constants";
-import { TriageLevel } from "@/modules/triage/constants";
 import { Stethoscope } from "lucide-react";
 
 import type { DiagnosisDto, PredictionSummary } from "@/modules/diagnosis";

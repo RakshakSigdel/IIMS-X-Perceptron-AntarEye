@@ -65,7 +65,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   useEffect(() => {
-    void fetchUser();
+    const timeout = setTimeout(() => void fetchUser(), 0);
+    return () => clearTimeout(timeout);
   }, [fetchUser]);
 
   return (

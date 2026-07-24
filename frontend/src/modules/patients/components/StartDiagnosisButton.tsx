@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { motion, AnimatePresence } from "motion/react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -153,11 +154,12 @@ export function StartDiagnosisButton({ patientId }: StartDiagnosisButtonProps) {
                     />
                   </label>
                 ) : (
-                  <div className="relative rounded-xl overflow-hidden border border-border">
-                    <img
+                  <div className="relative rounded-xl overflow-hidden border border-border w-full h-48">
+                    <Image
                       src={preview}
                       alt="Fundus image preview"
-                      className="w-full h-48 object-cover"
+                      fill
+                      className="object-cover"
                     />
                     {!isUploading && (
                       <button
