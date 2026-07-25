@@ -46,6 +46,8 @@ export async function predictService(
 
     const data = await response.json();
 
+    console.log(data);
+
     // 3. Validate response shape
     const result = aiResponseSchema.safeParse(data);
     if (!result.success) {
@@ -55,6 +57,9 @@ export async function predictService(
       );
       throw new ExternalServiceError("AI service returned invalid data format");
     }
+
+    console.log(result);
+    console.log(result.data);
 
     return result.data;
   } catch (error: unknown) {

@@ -10,7 +10,7 @@ NUM_CLASSES = 3
 DEVICE = "cuda"
 
 BATCH_SIZE = 16
-EPOCHS = 15
+EPOCHS = 30
 LEARNING_RATE = 2e-5
 WEIGHT_DECAY = 1e-2
 
@@ -20,4 +20,4 @@ MIN_DELTA = 1e-4
 
 CLASSES = {0: "Diabetic Retinopathy", 1: "Glaucoma", 2: "Hypertensive Retinopathy"}
 
-EXPERIMENT_CHECKPOINT = os.path.join("runs", "experiment_013", "model_best.pth")
+EXPERIMENT_CHECKPOINT = os.path.join("runs", "experiment_015", "model_best.pth")

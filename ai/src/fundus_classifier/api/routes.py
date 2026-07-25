@@ -1,3 +1,4 @@
+import json
 from fastapi import APIRouter, UploadFile, File, HTTPException
 import os
 import shutil
@@ -58,9 +59,17 @@ async def predict_endpoint(image: UploadFile = File(...)):
             raise HTTPException(status_code=500, detail="Prediction failed.")
 
         try:
-            report = report_generator.generate_report(class_name, conf)
+            report_raw = report_generator.generate_report(class_name, conf)
+            try:
+                report_data = json.loads(report_raw)
+                doctor_rec = report_data.get("doctor")
+                patient_rec = report_data.get("patient")
+            except (json.JSONDecodeError, TypeError):
+                doctor_rec = report_raw
+                patient_rec = report_raw
         except Exception:
-            report = "LLM recommendation unavailable"
+            doctor_rec = "LLM recommendation unavailable"
+            patient_rec = "LLM recommendation unavailable"
 
         heatmap_base64 = None
         try:
@@ -78,8 +87,8 @@ async def predict_endpoint(image: UploadFile = File(...)):
             predicted_class=class_name,
             confidence=conf,
             heatmap=heatmap_base64,
-            llm_patient_recommendation=report,
-            llm_doctor_recommendation=report,
+            llm_patient_recommendation=patient_rec,
+            llm_doctor_recommendation=doctor_rec,
         )
 
     finally:
