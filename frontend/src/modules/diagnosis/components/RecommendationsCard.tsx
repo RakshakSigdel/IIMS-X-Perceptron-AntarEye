@@ -3,6 +3,30 @@
 import { motion } from "motion/react";
 import { MessageSquare, Stethoscope } from "lucide-react";
 
+/**
+ * The AI backend occasionally stores the raw LLM output (e.g. a JSON string
+ * like `{"doctor": "...", "patient": "..."}`) instead of the extracted plain
+ * text.  This helper detects that case and returns only the relevant string.
+ */
+function extractRecommendationText(
+  raw: string | null,
+  key: "doctor" | "patient"
+): string | null {
+  if (!raw) return null;
+  const trimmed = raw.trim();
+  if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (parsed && typeof parsed === "object" && typeof parsed[key] === "string") {
+        return parsed[key] as string;
+      }
+    } catch {
+      // Not valid JSON — fall through and return raw
+    }
+  }
+  return raw;
+}
+
 interface RecommendationsCardProps {
   doctorRecommendation: string | null;
   patientRecommendation: string | null;
@@ -12,7 +36,10 @@ export function RecommendationsCard({
   doctorRecommendation,
   patientRecommendation,
 }: RecommendationsCardProps) {
-  if (!doctorRecommendation && !patientRecommendation) {
+  const doctorText = extractRecommendationText(doctorRecommendation, "doctor");
+  const patientText = extractRecommendationText(patientRecommendation, "patient");
+
+  if (!doctorText && !patientText) {
     return null;
   }
 
@@ -28,7 +55,7 @@ export function RecommendationsCard({
         AI Recommendations
       </h3>
 
-      {doctorRecommendation && (
+      {doctorText && (
         <div>
           <div className="flex items-center gap-1.5 mb-2">
             <Stethoscope className="size-3.5 text-accent" />
@@ -38,13 +65,13 @@ export function RecommendationsCard({
           </div>
           <div className="rounded-lg bg-accent/5 border border-accent/10 p-4">
             <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">
-              {doctorRecommendation}
+              {doctorText}
             </p>
           </div>
         </div>
       )}
 
-      {patientRecommendation && (
+      {patientText && (
         <div>
           <div className="flex items-center gap-1.5 mb-2">
             <MessageSquare className="size-3.5 text-primary" />
@@ -54,7 +81,7 @@ export function RecommendationsCard({
           </div>
           <div className="rounded-lg bg-primary/5 border border-primary/10 p-4">
             <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">
-              {patientRecommendation}
+              {patientText}
             </p>
           </div>
         </div>
