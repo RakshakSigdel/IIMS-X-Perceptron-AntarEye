@@ -1,8 +1,9 @@
 import torch
 import os
+import pandas as pd
+import matplotlib.pyplot as plt
 
 class AverageMeter(object):
-    """Computes and stores the average and current value"""
     def __init__(self):
         self.reset()
 
@@ -19,7 +20,6 @@ class AverageMeter(object):
         self.avg = self.sum / self.count
 
 def calculate_accuracy(output, target):
-    """Computes the accuracy for classification"""
     with torch.no_grad():
         _, pred = torch.max(output, 1)
         correct = (pred == target).sum().item()
@@ -52,13 +52,65 @@ def load_checkpoint(filepath, model, optimizer=None):
         model.load_state_dict(checkpoint)
         return model, optimizer, 0, 0.0
 
+def plot_metrics(csv_path, output_path=None, best_epoch=None, early_stop_epoch=None):
+    df = pd.read_csv(csv_path)
+    epochs = df["epoch"]
+
+    fig, ax1 = plt.subplots(figsize=(10, 6))
+
+    ax1.set_xlabel("Epoch")
+    ax1.set_ylabel("Loss", color="tab:blue")
+    l1 = ax1.plot(epochs, df["train_loss"], "o-", color="tab:blue", label="Train Loss", linewidth=1.5, markersize=4)
+    l2 = ax1.plot(epochs, df["val_loss"], "s--", color="tab:cyan", label="Val Loss", linewidth=1.5, markersize=4)
+    ax1.tick_params(axis="y", labelcolor="tab:blue")
+
+    ax2 = ax1.twinx()
+    ax2.set_ylabel("Accuracy", color="tab:orange")
+    l3 = ax2.plot(epochs, df["train_acc"], "o-", color="tab:orange", label="Train Acc", linewidth=1.5, markersize=4)
+    l4 = ax2.plot(epochs, df["val_acc"], "s--", color="tab:red", label="Val Acc", linewidth=1.5, markersize=4)
+    ax2.tick_params(axis="y", labelcolor="tab:orange")
+
+    if best_epoch is not None:
+        best_val_loss = df.loc[df["epoch"] == best_epoch, "val_loss"].values[0]
+        ax1.axvline(x=best_epoch, color="green", linestyle=":", linewidth=1.5, alpha=0.8)
+        ax1.annotate(f"Best Model\n(val_loss={best_val_loss:.4f})",
+                     xy=(best_epoch, ax1.get_ylim()[1]),
+                     xytext=(best_epoch + 0.3, ax1.get_ylim()[1]),
+                     fontsize=9, color="green", va="top",
+                     arrowprops=dict(arrowstyle="->", color="green", lw=0.8))
+
+    if early_stop_epoch is not None:
+        ax1.axvline(x=early_stop_epoch, color="red", linestyle=":", linewidth=1.5, alpha=0.8)
+        ax1.annotate(f"Early Stop\n(epoch {early_stop_epoch})",
+                     xy=(early_stop_epoch, ax1.get_ylim()[0]),
+                     xytext=(early_stop_epoch + 0.3, ax1.get_ylim()[0]),
+                     fontsize=9, color="red", va="bottom",
+                     arrowprops=dict(arrowstyle="->", color="red", lw=0.8))
+
+    lines = l1 + l2 + l3 + l4
+    labels = [l.get_label() for l in lines]
+    ax1.legend(lines, labels, loc="best")
+
+    ax1.set_title("Training Progress")
+    ax1.grid(True, alpha=0.3)
+
+    fig.tight_layout()
+
+    if output_path:
+        plt.savefig(output_path, dpi=150, bbox_inches="tight")
+        plt.close(fig)
+    else:
+        plt.show()
+
 def compute_class_weights(train_dataset, num_classes):
     import numpy as np
     labels = []
     
-    if hasattr(train_dataset, 'image_folder'): # FolderDataset
+    if hasattr(train_dataset, 'image_folder'):
         labels = train_dataset.image_folder.targets
-    elif hasattr(train_dataset, 'subset'): # TransformWrapper wrapping a Subset
+    elif hasattr(train_dataset, 'targets'):
+        labels = train_dataset.targets
+    elif hasattr(train_dataset, 'subset'):
         subset = train_dataset.subset
         if hasattr(subset.dataset, 'image_folder'):
             all_targets = subset.dataset.image_folder.targets

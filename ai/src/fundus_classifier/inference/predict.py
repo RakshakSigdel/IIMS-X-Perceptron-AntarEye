@@ -8,9 +8,8 @@ from PIL import Image
 from src.fundus_classifier.model import get_model
 from src.fundus_classifier.utils import load_checkpoint
 from src.fundus_classifier.transforms import get_transforms
-from src.fundus_classifier.config import NUM_CLASSES, CHECKPOINT_DIR, CLASSES
+from src.fundus_classifier.config import NUM_CLASSES, EXPERIMENT_CHECKPOINT, CLASSES
 
-# Attempt to import grad-cam; fails gracefully if not installed yet
 try:
     from pytorch_grad_cam import GradCAM
     from pytorch_grad_cam.utils.image import show_cam_on_image
@@ -38,15 +37,12 @@ def predict(image_path, model, device):
         
     predicted_class = CLASSES.get(predicted_class_idx, str(predicted_class_idx))
     confidence = probabilities[predicted_class_idx].item()
-    
-    # Create dict of all probabilities mapped to class names and convert to lowercase with underscores as per contract
+
     pred_dict = {}
     for i, prob in enumerate(probabilities):
-        # Format the class name to match contract e.g. "Diabetic Retinopathy" -> "diabetic_retinopathy", "Normal" -> "normal"
         class_str = CLASSES.get(i, str(i)).lower().replace(" ", "_")
         pred_dict[class_str] = prob.item()
-        
-    # Format the predicted class to match as well
+
     predicted_class_formatted = predicted_class.lower().replace(" ", "_")
         
     return pred_dict, predicted_class_formatted, confidence, input_tensor
@@ -55,18 +51,15 @@ def generate_gradcam(model, input_tensor, original_image, target_class=None):
     if not HAS_GRADCAM:
         print("pytorch-grad-cam not installed. Cannot generate GradCAM.")
         return None
-        
-    # Using the last bottleneck layer of ResNet50
-    target_layers = [model.layer4[-1]]
-    
+
+    target_layers = [model.features[-1]]
+
     with GradCAM(model=model, target_layers=target_layers) as cam:
         targets = [ClassifierOutputTarget(target_class)] if target_class is not None else None
         grayscale_cam = cam(input_tensor=input_tensor, targets=targets)
-        
-        # In this example grayscale_cam has only one image in the batch
+
         grayscale_cam = grayscale_cam[0, :]
-        
-        # Preprocess original image for visualization
+
         rgb_img = np.float32(original_image.resize((224, 224))) / 255
         
         visualization = show_cam_on_image(rgb_img, grayscale_cam, use_rgb=True)
@@ -75,7 +68,7 @@ def generate_gradcam(model, input_tensor, original_image, target_class=None):
 def main():
     parser = argparse.ArgumentParser(description='Predict Fundus Image')
     parser.add_argument('image_path', type=str, help='Path to the image to predict')
-    parser.add_argument('--checkpoint', type=str, default=os.path.join(CHECKPOINT_DIR, 'model_best.pth.tar'), help='Path to checkpoint')
+    parser.add_argument('--checkpoint', type=str, default=EXPERIMENT_CHECKPOINT, help='Path to checkpoint')
     parser.add_argument('--gradcam', action='store_true', help='Generate GradCAM heatmap')
     args = parser.parse_args()
 

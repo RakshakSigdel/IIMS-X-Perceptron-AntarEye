@@ -8,11 +8,6 @@ class FundusPreprocess:
 
 
 def get_transforms(train=True, img_size=224):
-    """
-    Returns the torchvision transforms for training and validation.
-    Includes fundus-specific preprocessing (circular crop, illumination
-    correction, CLAHE) before standard augmentations.
-    """
     base = [FundusPreprocess(), transforms.Resize((img_size, img_size))]
     if train:
         train_augs = [

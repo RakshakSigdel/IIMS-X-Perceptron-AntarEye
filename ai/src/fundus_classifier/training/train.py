@@ -9,14 +9,15 @@ from torch.utils.data import DataLoader, random_split
 
 from src.fundus_classifier.dataset import TransformWrapper
 from src.fundus_classifier.folder_dataset import FolderDataset
+from src.fundus_classifier.cvat_dataset import CvatDataset
 from src.fundus_classifier.transforms import get_transforms
 from src.fundus_classifier.model import get_model
-from src.fundus_classifier.utils import AverageMeter, calculate_accuracy, compute_class_weights
+from src.fundus_classifier.utils import AverageMeter, calculate_accuracy, compute_class_weights, plot_metrics
 from src.fundus_classifier.early_stopping import EarlyStopping
 import src.fundus_classifier.config as cfg
 from src.fundus_classifier.config import (
-    DATA_ROOT, IMG_SIZE, BATCH_SIZE, EPOCHS, LEARNING_RATE,
-    NUM_CLASSES, PATIENCE, MIN_DELTA
+    DATA_ROOT, DATASETS_ROOT, IMG_SIZE, BATCH_SIZE, EPOCHS, LEARNING_RATE,
+    WEIGHT_DECAY, LABEL_SMOOTHING, NUM_CLASSES, PATIENCE, MIN_DELTA
 )
 
 def setup_experiment(base_dir="runs"):
@@ -91,6 +92,7 @@ def validate(val_loader, model, criterion, device):
 def main():
     parser = argparse.ArgumentParser(description='PyTorch Fundus Training')
     parser.add_argument('--data-root', type=str, default=DATA_ROOT, help='Path to folder dataset')
+    parser.add_argument('--datasets', type=str, default=None, help='Path to CVAT-format DATASETS directory')
     args = parser.parse_args()
 
     exp_dir = setup_experiment()
@@ -114,38 +116,46 @@ def main():
     logging.info(f"Using device: {device}")
     logging.info(f"Experiment directory: {exp_dir}")
 
-    # Dataset Setup
-    train_dir, val_dir = os.path.join(args.data_root, 'train'), os.path.join(args.data_root, 'val')
-    if os.path.exists(train_dir) and os.path.exists(val_dir):
-        num_classes = FolderDataset.get_num_classes(train_dir)
-        train_dataset = FolderDataset(train_dir, transform=get_transforms(train=True, img_size=IMG_SIZE))
-        val_dataset = FolderDataset(val_dir, transform=get_transforms(train=False, img_size=IMG_SIZE))
+    if args.datasets is not None:
+        num_classes = NUM_CLASSES
+        train_dataset = CvatDataset(args.datasets, split="train", transform=get_transforms(train=True, img_size=IMG_SIZE))
+        val_dataset = CvatDataset(args.datasets, split="val", transform=get_transforms(train=False, img_size=IMG_SIZE))
+        logging.info(f"Using CVAT datasets from {args.datasets}")
     else:
-        num_classes = FolderDataset.get_num_classes(args.data_root)
-        full_dataset = FolderDataset(args.data_root)
-        train_size = int(0.8 * len(full_dataset))
-        train_sub, val_sub = random_split(full_dataset, [train_size, len(full_dataset) - train_size], generator=torch.Generator().manual_seed(42))
-        train_dataset = TransformWrapper(train_sub, transform=get_transforms(train=True, img_size=IMG_SIZE))
-        val_dataset = TransformWrapper(val_sub, transform=get_transforms(train=False, img_size=IMG_SIZE))
+        train_dir, val_dir = os.path.join(args.data_root, 'train'), os.path.join(args.data_root, 'val')
+        if os.path.exists(train_dir) and os.path.exists(val_dir):
+            num_classes = FolderDataset.get_num_classes(train_dir)
+            train_dataset = FolderDataset(train_dir, transform=get_transforms(train=True, img_size=IMG_SIZE))
+            val_dataset = FolderDataset(val_dir, transform=get_transforms(train=False, img_size=IMG_SIZE))
+        else:
+            num_classes = FolderDataset.get_num_classes(args.data_root)
+            full_dataset = FolderDataset(args.data_root)
+            train_size = int(0.8 * len(full_dataset))
+            train_sub, val_sub = random_split(full_dataset, [train_size, len(full_dataset) - train_size], generator=torch.Generator().manual_seed(42))
+            train_dataset = TransformWrapper(train_sub, transform=get_transforms(train=True, img_size=IMG_SIZE))
+            val_dataset = TransformWrapper(val_sub, transform=get_transforms(train=False, img_size=IMG_SIZE))
 
     logging.info(f"Train size: {len(train_dataset)}")
     logging.info(f"Val size: {len(val_dataset)}")
 
-    # DataLoaders & Model
     train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=4, pin_memory=True)
     val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=4, pin_memory=True)
 
     model = get_model(num_classes=num_classes).to(device)
-    
-    # Loss, Optimizer & Early Stopping
+
     class_weights = compute_class_weights(train_dataset, num_classes).to(device)
-    train_criterion = nn.CrossEntropyLoss(weight=class_weights)
+    train_criterion = nn.CrossEntropyLoss(weight=class_weights, label_smoothing=LABEL_SMOOTHING)
     val_criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=LEARNING_RATE)
+    optimizer = optim.Adam(
+        filter(lambda p: p.requires_grad, model.parameters()),
+        lr=LEARNING_RATE,
+        weight_decay=WEIGHT_DECAY,
+    )
     early_stopping = EarlyStopping(patience=PATIENCE, min_delta=MIN_DELTA, verbose=True)
 
-    # Training Loop
     best_val_loss = float('inf')
+    best_epoch = None
+    early_stop_epoch = None
     for epoch in range(EPOCHS):
         train_acc, train_loss = train_one_epoch(train_loader, model, train_criterion, optimizer, epoch, device)
         val_acc, val_loss = validate(val_loader, model, val_criterion, device)
@@ -157,15 +167,21 @@ def main():
         is_best = early_stopping(val_loss, model)
         if is_best:
             best_val_loss = val_loss
+            best_epoch = epoch + 1
             logging.info(f'  -> New best model (val_loss={val_loss:.4f}). Saving checkpoint.')
             torch.save(model.state_dict(), os.path.join(exp_dir, "model_best.pth"))
 
         if early_stopping.early_stop:
-            logging.info(f'Early stopping triggered after {epoch + 1} epochs.')
+            early_stop_epoch = epoch + 1
+            logging.info(f'Early stopping triggered after {early_stop_epoch} epochs.')
             break
 
     early_stopping.load_best_weights(model)
     logging.info(f'Training complete. Best validation loss: {best_val_loss:.4f}')
+
+    plot_path = os.path.join(exp_dir, "training_plot.png")
+    plot_metrics(csv_file, output_path=plot_path, best_epoch=best_epoch, early_stop_epoch=early_stop_epoch)
+    logging.info(f"Training plot saved to {plot_path}")
 
 if __name__ == '__main__':
     main()

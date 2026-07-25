@@ -1,25 +1,23 @@
 import os
 
-# Base paths
 DATA_ROOT = os.getenv("DATA_ROOT", "dataset")
 CHECKPOINT_DIR = os.getenv("CHECKPOINT_DIR", "checkpoints")
 HEATMAP_DIR = os.getenv("HEATMAP_DIR", "heatmaps")
+DATASETS_ROOT = os.getenv("DATASETS_ROOT", "DATASETS")
 
-# Model configurations
 IMG_SIZE = 224
-BATCH_SIZE = 32
-EPOCHS = 4
-LEARNING_RATE = 1e-4
 NUM_CLASSES = 3
 DEVICE = "cuda"
 
-# Early Stopping
-PATIENCE = 2
+BATCH_SIZE = 16
+EPOCHS = 15
+LEARNING_RATE = 2e-5
+WEIGHT_DECAY = 1e-2
+
+LABEL_SMOOTHING = 0.1
+PATIENCE = 5
 MIN_DELTA = 1e-4
 
-# Classes
-CLASSES = {
-    0: "Normal",
-    1: "Hypertensive Retinopathy",
-    2: "Glaucoma"
-}
+CLASSES = {0: "Diabetic Retinopathy", 1: "Glaucoma", 2: "Hypertensive Retinopathy"}
+
+EXPERIMENT_CHECKPOINT = os.path.join("runs", "experiment_013", "model_best.pth")

@@ -29,10 +29,14 @@ export async function createDiagnosisService(
   // 2. Upload image
   const fileExt = imageFile.name.split(".").pop();
   const filePath = `${patientId}/${randomUUID()}.${fileExt}`;
+
+  console.log(filePath);
   
   const { error: uploadError } = await supabase.storage
     .from(STORAGE_BUCKETS.FUNDUS_IMAGES)
     .upload(filePath, imageFile, { contentType: imageFile.type });
+
+    console.log(uploadError);
 
   if (uploadError) {
     throw new ExternalServiceError(DIAGNOSIS_ERROR_MESSAGES.UPLOAD_FAILED);

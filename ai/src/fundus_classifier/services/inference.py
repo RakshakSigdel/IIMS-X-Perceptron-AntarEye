@@ -3,7 +3,7 @@ import os
 from PIL import Image
 
 from src.fundus_classifier.inference.predict import load_trained_model, predict, generate_gradcam
-from src.fundus_classifier.config import CHECKPOINT_DIR
+from src.fundus_classifier.config import EXPERIMENT_CHECKPOINT
 
 class ModelService:
     _instance = None
@@ -16,7 +16,7 @@ class ModelService:
 
     def _initialize(self):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        checkpoint_path = os.path.join(CHECKPOINT_DIR, "model_best.pth.tar")
+        checkpoint_path = EXPERIMENT_CHECKPOINT
         if os.path.exists(checkpoint_path):
             self.model = load_trained_model(checkpoint_path, self.device)
             print("Model loaded successfully.")
@@ -35,5 +35,4 @@ class ModelService:
             raise RuntimeError("Model is not loaded.")
         return generate_gradcam(self.model, input_tensor, original_image, target_class)
 
-# Initialize the singleton instance
 model_service = ModelService()

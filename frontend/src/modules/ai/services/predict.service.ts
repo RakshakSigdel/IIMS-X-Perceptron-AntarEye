@@ -12,9 +12,25 @@ export async function predictService(
   const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
 
   try {
+    // 1. Explicitly map and validate allowed MIME types based on file extension
+    const ext = fileName.toLowerCase().split(".").pop();
+    let mimeType = "application/octet-stream";
+
+    if (ext === "jpg" || ext === "jpeg") {
+      mimeType = "image/jpeg";
+    } else if (ext === "png") {
+      mimeType = "image/png";
+    } else {
+      throw new ExternalServiceError("Unsupported file type. Only JPEG and PNG are allowed.");
+    }
+
     const formData = new FormData();
-    const blob = new Blob([new Uint8Array(imageBuffer)]);
-    formData.append("image", blob, fileName);
+    
+    // 2. Convert Buffer to Uint8Array to satisfy TypeScript's BlobPart definition
+    const uint8Array = new Uint8Array(imageBuffer);
+    const file = new File([uint8Array], fileName, { type: mimeType });
+
+    formData.append("image", file);
 
     const response = await fetch(`${baseUrl}/predict`, {
       method: "POST",
@@ -23,12 +39,14 @@ export async function predictService(
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`AI service error (${response.status}):`, errorText);
       throw new ExternalServiceError(`AI service returned ${response.status}`);
     }
 
     const data = await response.json();
 
-    // Validate response shape
+    // 3. Validate response shape
     const result = aiResponseSchema.safeParse(data);
     if (!result.success) {
       console.error(
@@ -47,6 +65,11 @@ export async function predictService(
     }
 
     const message = error instanceof Error ? error.message : "Unknown error";
+
+    // If it's already an ExternalServiceError, rethrow it directly
+    if (error instanceof ExternalServiceError) {
+      throw error;
+    }
 
     throw new ExternalServiceError(`AI prediction failed: ${message}`);
   } finally {

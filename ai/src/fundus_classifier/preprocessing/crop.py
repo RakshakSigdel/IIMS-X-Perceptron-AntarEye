@@ -2,10 +2,6 @@ import cv2
 import numpy as np
 
 def circular_crop(img, tol=7):
-    """
-    Crops the black background around the fundus image.
-    Works for RGB images (H, W, C).
-    """
     if img.ndim == 2:
         mask = img > tol
         return img[np.ix_(mask.any(1), mask.any(0))]
