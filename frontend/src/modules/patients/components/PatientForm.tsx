@@ -31,7 +31,7 @@ export function PatientForm({ patient, mode }: PatientFormProps) {
   const [phone, setPhone] = useState(patient?.phone ?? "");
   const [address, setAddress] = useState(patient?.address ?? "");
 
-  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
+  const handleSubmit = async (e: React.SubmitEvent): Promise<void> => {
     e.preventDefault();
     setError(null);
     setFieldErrors({});
@@ -40,7 +40,7 @@ export function PatientForm({ patient, mode }: PatientFormProps) {
       firstName,
       lastName,
       dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined,
-      gender: gender || undefined,
+      gender: (gender as Gender) || undefined,
       phone: phone || null,
       address: address || null,
     };
@@ -69,7 +69,7 @@ export function PatientForm({ patient, mode }: PatientFormProps) {
       const response = await fetch(url, {
         method: mode === "create" ? "POST" : "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(result.data),
       });
 
       if (!response.ok) {
@@ -81,7 +81,9 @@ export function PatientForm({ patient, mode }: PatientFormProps) {
       const saved = envelope.data;
       router.push(PAGE_ROUTES.DOCTOR.PATIENT_DETAIL(saved.id));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An unexpected error occurred");
+      setError(
+        err instanceof Error ? err.message : "An unexpected error occurred",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -94,7 +96,7 @@ export function PatientForm({ patient, mode }: PatientFormProps) {
       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
       "disabled:cursor-not-allowed disabled:opacity-50",
       "transition-colors duration-150",
-      fieldErrors[field] ? "border-destructive" : "border-input"
+      fieldErrors[field] ? "border-destructive" : "border-input",
     );
 
   return (
@@ -114,7 +116,10 @@ export function PatientForm({ patient, mode }: PatientFormProps) {
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         {/* First Name */}
         <div className="space-y-1.5">
-          <label htmlFor="firstName" className="text-sm font-medium text-foreground">
+          <label
+            htmlFor="firstName"
+            className="text-sm font-medium text-foreground"
+          >
             First Name <span className="text-destructive">*</span>
           </label>
           <input
@@ -133,7 +138,10 @@ export function PatientForm({ patient, mode }: PatientFormProps) {
 
         {/* Last Name */}
         <div className="space-y-1.5">
-          <label htmlFor="lastName" className="text-sm font-medium text-foreground">
+          <label
+            htmlFor="lastName"
+            className="text-sm font-medium text-foreground"
+          >
             Last Name <span className="text-destructive">*</span>
           </label>
           <input
@@ -152,7 +160,10 @@ export function PatientForm({ patient, mode }: PatientFormProps) {
 
         {/* Date of Birth */}
         <div className="space-y-1.5">
-          <label htmlFor="dateOfBirth" className="text-sm font-medium text-foreground">
+          <label
+            htmlFor="dateOfBirth"
+            className="text-sm font-medium text-foreground"
+          >
             Date of Birth <span className="text-destructive">*</span>
           </label>
           <input
@@ -164,13 +175,18 @@ export function PatientForm({ patient, mode }: PatientFormProps) {
             className={inputClass("dateOfBirth")}
           />
           {fieldErrors.dateOfBirth && (
-            <p className="text-xs text-destructive">{fieldErrors.dateOfBirth}</p>
+            <p className="text-xs text-destructive">
+              {fieldErrors.dateOfBirth}
+            </p>
           )}
         </div>
 
         {/* Gender */}
         <div className="space-y-1.5">
-          <label htmlFor="gender" className="text-sm font-medium text-foreground">
+          <label
+            htmlFor="gender"
+            className="text-sm font-medium text-foreground"
+          >
             Gender <span className="text-destructive">*</span>
           </label>
           <select
@@ -194,7 +210,10 @@ export function PatientForm({ patient, mode }: PatientFormProps) {
 
         {/* Phone */}
         <div className="space-y-1.5">
-          <label htmlFor="phone" className="text-sm font-medium text-foreground">
+          <label
+            htmlFor="phone"
+            className="text-sm font-medium text-foreground"
+          >
             Phone
           </label>
           <input
@@ -210,7 +229,10 @@ export function PatientForm({ patient, mode }: PatientFormProps) {
 
         {/* Address */}
         <div className="space-y-1.5">
-          <label htmlFor="address" className="text-sm font-medium text-foreground">
+          <label
+            htmlFor="address"
+            className="text-sm font-medium text-foreground"
+          >
             Address
           </label>
           <input

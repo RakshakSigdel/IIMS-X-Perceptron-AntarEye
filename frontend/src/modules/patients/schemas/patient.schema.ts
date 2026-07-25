@@ -4,7 +4,9 @@ import { Gender } from "@/lib/constants";
 export const createPatientSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
-  dateOfBirth: z.date("Must be a valid date (YYYY-MM-DD)"),
+  dateOfBirth: z.coerce.date({
+    message: "Must be a valid date (YYYY-MM-DD)",
+  }),
   gender: z.enum(Gender),
   phone: z.string().optional().nullable(),
   address: z.string().optional().nullable(),
