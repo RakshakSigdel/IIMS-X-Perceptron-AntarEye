@@ -10,6 +10,7 @@ async function main() {
   const email = "admin@example.com";
   const password = "Admin@123";
   const fullName = "Admin";
+  const role = "admin";
 
   // Check if the user already exists
   const { data: users, error: listError } =
@@ -47,7 +48,7 @@ async function main() {
   const { error: profileError } = await supabase.from("user_profiles").upsert(
     {
       auth_user_id: authUserId,
-      role: "admin",
+      role: role,
       full_name: fullName,
       email,
     },

@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { PAGE_ROUTES, API_ROUTES } from "@/lib/constants";
-import { Gender } from "@/lib/constants";
+import { PAGE_ROUTES, API_ROUTES, Gender } from "@/lib/constants";
+import { extractApiError } from "@/lib/api/extract-error";
+import type { ApiResponse } from "@/lib/api/types";
 import { createPatientSchema } from "@/modules/patients";
 import { Loader2 } from "lucide-react";
 
@@ -72,11 +73,12 @@ export function PatientForm({ patient, mode }: PatientFormProps) {
       });
 
       if (!response.ok) {
-        const body = (await response.json().catch(() => ({}))) as Record<string, unknown>;
-        throw new Error((body.error as string) ?? "Failed to save patient");
+        const body = await response.json().catch(() => ({}));
+        throw new Error(extractApiError(body, "Failed to save patient"));
       }
 
-      const saved = (await response.json()) as PatientDto;
+      const envelope = (await response.json()) as ApiResponse<PatientDto>;
+      const saved = envelope.data;
       router.push(PAGE_ROUTES.DOCTOR.PATIENT_DETAIL(saved.id));
     } catch (err) {
       setError(err instanceof Error ? err.message : "An unexpected error occurred");

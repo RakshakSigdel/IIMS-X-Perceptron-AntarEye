@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { API_ROUTES } from "@/lib/constants";
 import { Download, Loader2 } from "lucide-react";
+import { extractApiError } from "@/lib/api/extract-error";
 import { toast } from "sonner";
 
 interface DiagnosisActionsProps {
@@ -24,8 +25,8 @@ export function DiagnosisActions({ diagnosisId, hasReport }: DiagnosisActionsPro
       );
 
       if (!response.ok) {
-        const body = (await response.json().catch(() => ({}))) as Record<string, unknown>;
-        throw new Error((body.error as string) ?? "Failed to generate report");
+        const body = await response.json().catch(() => ({}));
+        throw new Error(extractApiError(body, "Failed to generate report"));
       }
 
       // Try to download as blob

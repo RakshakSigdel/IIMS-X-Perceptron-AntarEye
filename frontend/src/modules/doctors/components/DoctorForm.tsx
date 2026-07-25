@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { API_ROUTES, PAGE_ROUTES } from "@/lib/constants";
+import { PAGE_ROUTES, API_ROUTES } from "@/lib/constants";
+import { extractApiError } from "@/lib/api/extract-error";
 import { createDoctorSchema, updateDoctorSchema } from "@/modules/doctors";
 import { Loader2 } from "lucide-react";
 
@@ -66,8 +67,8 @@ export function DoctorForm({ doctor, mode }: DoctorFormProps) {
       });
 
       if (!response.ok) {
-        const body = (await response.json().catch(() => ({}))) as Record<string, unknown>;
-        throw new Error((body.error as string) ?? "Failed to save doctor");
+        const body = await response.json().catch(() => ({}));
+        throw new Error(extractApiError(body, "Failed to save doctor"));
       }
 
       router.push(PAGE_ROUTES.ADMIN.DOCTORS);

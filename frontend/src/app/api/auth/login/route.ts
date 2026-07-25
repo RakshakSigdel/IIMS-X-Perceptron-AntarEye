@@ -19,9 +19,9 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = await createClient();
-    await loginService(supabase, result.data);
+    const userSession = await loginService(supabase, result.data);
 
-    return successResponse({ message: "Successfully logged in" });
+    return successResponse(userSession);
   } catch (error) {
     return errorResponse(error);
   }

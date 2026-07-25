@@ -10,14 +10,15 @@ import { DoctorDto } from "../dto/doctor.dto";
 // because it interacts with the Supabase Auth Admin API to create users.
 export async function createDoctorService(
   serviceClient: SupabaseClient,
-  dto: CreateDoctorRequestDto
+  dto: CreateDoctorRequestDto,
 ): Promise<DoctorDto> {
   // 1. Create auth user
-  const { data: authData, error: authError } = await serviceClient.auth.admin.createUser({
-    email: dto.email,
-    password: dto.password,
-    email_confirm: true,
-  });
+  const { data: authData, error: authError } =
+    await serviceClient.auth.admin.createUser({
+      email: dto.email,
+      password: dto.password,
+      email_confirm: true,
+    });
 
   if (authError) {
     if (authError.message.includes("already registered")) {
@@ -39,6 +40,9 @@ export async function createDoctorService(
     })
     .select()
     .single();
+
+  console.log(profile);
+  console.log(dbError);
 
   if (dbError) {
     // Attempt rollback of auth user if profile fails

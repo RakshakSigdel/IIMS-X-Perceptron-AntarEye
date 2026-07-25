@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
-import { PAGE_ROUTES } from './src/lib/constants';
+import { PAGE_ROUTES, UserRole, TABLES } from './src/lib/constants';
 
 export const config = {
   matcher: [
@@ -42,11 +42,14 @@ export async function proxy(request: NextRequest) {
   if (path === PAGE_ROUTES.PUBLIC.HOME || path === PAGE_ROUTES.PUBLIC.LOGIN) {
     if (user) {
       // If logged in, redirect based on role (we need profile to know role)
-      const { data: profile } = await supabase.from('user_profiles').select('role').eq('auth_user_id', user.id).single();
-      if (profile?.role === 'admin') {
+      const { data: profile } = await supabase.from(TABLES.USER_PROFILES).select('role').eq('auth_user_id', user.id).single();
+      if (profile?.role === UserRole.ADMIN) {
         return NextResponse.redirect(new URL(PAGE_ROUTES.ADMIN.DASHBOARD, request.url));
       }
-      return NextResponse.redirect(new URL(PAGE_ROUTES.DOCTOR.DASHBOARD, request.url));
+      if (profile?.role === UserRole.DOCTOR) {
+        return NextResponse.redirect(new URL(PAGE_ROUTES.DOCTOR.DASHBOARD, request.url));
+      }
+      // If role is unknown or missing, let them stay on login to re-authenticate or see an error
     }
     return response;
   }
@@ -57,17 +60,21 @@ export async function proxy(request: NextRequest) {
   }
 
   // Role-based routing
-  const { data: profile } = await supabase.from('user_profiles').select('role').eq('auth_user_id', user.id).single();
+  const { data: profile } = await supabase.from(TABLES.USER_PROFILES).select('role').eq('auth_user_id', user.id).single();
+
+  if (!profile) {
+    return NextResponse.redirect(new URL('/unauthorized', request.url));
+  }
 
   if (path.startsWith('/admin')) {
-    if (profile?.role !== 'admin') {
-      return NextResponse.redirect(new URL(PAGE_ROUTES.DOCTOR.DASHBOARD, request.url));
+    if (profile.role !== UserRole.ADMIN) {
+      return NextResponse.redirect(new URL('/unauthorized', request.url));
     }
   }
 
   if (path.startsWith('/doctor')) {
-    if (profile?.role !== 'doctor') {
-      return NextResponse.redirect(new URL(PAGE_ROUTES.ADMIN.DASHBOARD, request.url));
+    if (profile.role !== UserRole.DOCTOR) {
+      return NextResponse.redirect(new URL('/unauthorized', request.url));
     }
   }
 

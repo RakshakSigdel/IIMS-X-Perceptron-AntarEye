@@ -7,6 +7,8 @@ import { motion, AnimatePresence } from "motion/react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { API_ROUTES, PAGE_ROUTES } from "@/lib/constants";
+import { extractApiError } from "@/lib/api/extract-error";
+import type { ApiResponse } from "@/lib/api/types";
 import { Upload, X, Loader2, Eye } from "lucide-react";
 
 interface StartDiagnosisButtonProps {
@@ -67,11 +69,12 @@ export function StartDiagnosisButton({ patientId }: StartDiagnosisButtonProps) {
       });
 
       if (!response.ok) {
-        const body = (await response.json().catch(() => ({}))) as Record<string, unknown>;
-        throw new Error((body.error as string) ?? "Diagnosis failed");
+        const body = await response.json().catch(() => ({}));
+        throw new Error(extractApiError(body, "Diagnosis failed"));
       }
 
-      const result = (await response.json()) as { id: string };
+      const envelope = (await response.json()) as ApiResponse<{ id: string }>;
+      const result = envelope.data;
       router.push(PAGE_ROUTES.DOCTOR.DIAGNOSIS(result.id));
     } catch (err) {
       setError(err instanceof Error ? err.message : "An unexpected error occurred");

@@ -2,6 +2,8 @@
 
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
+import { extractApiError } from "@/lib/api/extract-error";
+import type { ApiResponse } from "@/lib/api/types";
 
 interface UseApiMutationOptions<TData> {
   onSuccess?: (data: TData) => void;
@@ -38,13 +40,12 @@ export function useApiMutation<TData, TVariables = unknown>(
         });
 
         if (!response.ok) {
-          const body = await response.json().catch(() => ({})) as Record<string, unknown>;
-          const errMsg =
-            (body.error as string) ?? `Request failed with status ${response.status}`;
-          throw new Error(errMsg);
+          const body = await response.json().catch(() => ({}));
+          throw new Error(extractApiError(body, `Request failed with status ${response.status}`));
         }
 
-        const data = (await response.json()) as TData;
+        const envelope = (await response.json()) as ApiResponse<TData>;
+        const data = envelope.data;
 
         if (options?.successMessage) {
           toast.success(options.successMessage);

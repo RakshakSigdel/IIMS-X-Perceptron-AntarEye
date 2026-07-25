@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { extractApiError } from "@/lib/api/extract-error";
+import type { ApiResponse } from "@/lib/api/types";
 
 interface UseApiQueryOptions {
   enabled?: boolean;
@@ -36,14 +38,12 @@ export function useApiQuery<TData>(
       const response = await fetch(url);
 
       if (!response.ok) {
-        const body = await response.json().catch(() => ({})) as Record<string, unknown>;
-        throw new Error(
-          (body.error as string) ?? `Request failed with status ${response.status}`
-        );
+        const body = await response.json().catch(() => ({}));
+        throw new Error(extractApiError(body, `Request failed with status ${response.status}`));
       }
 
-      const result = (await response.json()) as TData;
-      setData(result);
+      const envelope = (await response.json()) as ApiResponse<TData>;
+      setData(envelope.data);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "An unexpected error occurred";

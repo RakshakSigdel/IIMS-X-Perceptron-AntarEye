@@ -9,6 +9,7 @@ import {
 
 import { API_ROUTES, PAGE_ROUTES } from "@/lib/constants";
 
+import type { ApiResponse } from "@/lib/api/types";
 import type { UserSessionDto } from "@/modules/auth";
 
 interface AuthContextValue {
@@ -44,8 +45,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         return;
       }
 
-      const data = (await response.json()) as UserSessionDto;
-      setUser(data);
+      const envelope = (await response.json()) as ApiResponse<UserSessionDto>;
+      setUser(envelope.data);
     } catch {
       setUser(null);
     } finally {

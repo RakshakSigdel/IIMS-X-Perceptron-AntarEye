@@ -8,7 +8,9 @@ import { Button } from "@/components/ui/button";
 import { API_ROUTES, PAGE_ROUTES } from "@/lib/constants";
 import { UserRole } from "@/lib/constants";
 import { loginSchema } from "@/modules/auth";
+import { extractApiError } from "@/lib/api/extract-error";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
+import type { ApiResponse } from "@/lib/api/types";
 
 import type { LoginRequestDto, UserSessionDto } from "@/modules/auth";
 
@@ -50,20 +52,20 @@ export function LoginForm() {
       });
 
       if (!response.ok) {
-        const body = (await response.json().catch(() => ({}))) as Record<
-          string,
-          unknown
-        >;
-        throw new Error((body.error as string) ?? "Invalid credentials");
+        const body = await response.json().catch(() => ({}));
+        throw new Error(extractApiError(body, "Invalid credentials"));
       }
 
-      const user = (await response.json()).data.user;
+      const envelope = (await response.json()) as ApiResponse<UserSessionDto>;
+      const user = envelope.data;
 
       // Redirect based on role
       if (user.role === UserRole.ADMIN) {
         router.push(PAGE_ROUTES.ADMIN.DASHBOARD);
-      } else {
+      } else if (user.role === UserRole.DOCTOR) {
         router.push(PAGE_ROUTES.DOCTOR.DASHBOARD);
+      } else {
+        throw new Error(`Unknown user role: ${user.role}`);
       }
     } catch (err) {
       setError(
