@@ -6,7 +6,7 @@ import { TABLES } from "@/lib/constants";
 import { UserSessionDto } from "../dto/user-session.dto";
 
 export async function getCurrentUserService(
-  supabase: SupabaseClient
+  supabase: SupabaseClient,
 ): Promise<UserSessionDto> {
   const {
     data: { user },

@@ -5,9 +5,9 @@ import { AUTH_ERROR_MESSAGES } from "../constants";
 
 export async function loginService(
   supabase: SupabaseClient,
-  dto: LoginRequestDto
+  dto: LoginRequestDto,
 ) {
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabase.auth.signInWithPassword({
     email: dto.email,
     password: dto.password,
   });

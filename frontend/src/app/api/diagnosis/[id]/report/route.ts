@@ -1,6 +1,6 @@
 import { errorResponse, successResponse } from "@/lib/api/response";
 import { ForbiddenError } from "@/lib/errors";
-import { createServiceClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserService } from "@/modules/auth";
 import { downloadReportService, generateReportService } from "@/modules/reports";
 import { NextResponse, type NextRequest } from "next/server";
@@ -11,7 +11,7 @@ export async function POST(
 ) {
   try {
     const { id } = await params;
-    const supabase = await createServiceClient();
+    const supabase = await createClient();
     const userSession = await getCurrentUserService(supabase);
     
     if (userSession.role !== "doctor") throw new ForbiddenError();
@@ -30,7 +30,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const supabase = await createServiceClient();
+    const supabase = await createClient();
     const userSession = await getCurrentUserService(supabase);
     
     if (userSession.role !== "doctor") throw new ForbiddenError();

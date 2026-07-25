@@ -21,7 +21,7 @@ export function LoginForm() {
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
-  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
+  const handleSubmit = async (e: React.SubmitEvent): Promise<void> => {
     e.preventDefault();
     setError(null);
     setFieldErrors({});
@@ -57,7 +57,7 @@ export function LoginForm() {
         throw new Error((body.error as string) ?? "Invalid credentials");
       }
 
-      const user = (await response.json()) as UserSessionDto;
+      const user = (await response.json()).data.user;
 
       // Redirect based on role
       if (user.role === UserRole.ADMIN) {
@@ -67,7 +67,7 @@ export function LoginForm() {
       }
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "An unexpected error occurred"
+        err instanceof Error ? err.message : "An unexpected error occurred",
       );
     } finally {
       setIsLoading(false);
@@ -95,10 +95,7 @@ export function LoginForm() {
 
       {/* Email */}
       <div className="space-y-1.5">
-        <label
-          htmlFor="email"
-          className="text-sm font-medium text-foreground"
-        >
+        <label htmlFor="email" className="text-sm font-medium text-foreground">
           Email
         </label>
         <input
@@ -115,7 +112,7 @@ export function LoginForm() {
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
             "disabled:cursor-not-allowed disabled:opacity-50",
             "transition-colors duration-150",
-            fieldErrors.email ? "border-destructive" : "border-input"
+            fieldErrors.email ? "border-destructive" : "border-input",
           )}
         />
         {fieldErrors.email && (
@@ -146,7 +143,7 @@ export function LoginForm() {
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
               "disabled:cursor-not-allowed disabled:opacity-50",
               "transition-colors duration-150",
-              fieldErrors.password ? "border-destructive" : "border-input"
+              fieldErrors.password ? "border-destructive" : "border-input",
             )}
           />
           <button
@@ -168,11 +165,7 @@ export function LoginForm() {
       </div>
 
       {/* Submit */}
-      <Button
-        type="submit"
-        disabled={isLoading}
-        className="w-full h-10"
-      >
+      <Button type="submit" disabled={isLoading} className="w-full h-10">
         {isLoading ? (
           <>
             <Loader2 className="size-4 animate-spin" />

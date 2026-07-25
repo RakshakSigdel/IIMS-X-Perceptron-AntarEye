@@ -1,6 +1,6 @@
 import { errorResponse, successResponse } from "@/lib/api/response";
 import { UnauthorizedError, ValidationError } from "@/lib/errors";
-import { createServiceClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 import {
   disableDoctorService,
   getDoctorService,
@@ -16,7 +16,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const supabase = await createServiceClient();
+    const supabase = await createClient();
     const doctor = await getDoctorService(supabase, id);
     
     return successResponse(doctor);
@@ -38,7 +38,7 @@ export async function PATCH(
       throw new ValidationError("Validation failed", z.treeifyError(result.error));
     }
 
-    const supabase = await createServiceClient();
+    const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new UnauthorizedError();
 
@@ -57,11 +57,12 @@ export async function DELETE(
   try {
     const { id } = await params;
     
-    const supabase = await createServiceClient();
+    // Use createClient for auth check
+    const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new UnauthorizedError();
 
-    // Requires service client to disable auth user
+    // Use service client for the admin disable operation (Auth Admin API)
     const serviceClient = await createServiceClient();
     await disableDoctorService(serviceClient, id, user.id);
 
