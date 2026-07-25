@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState, useEffect } from "react";
+import { use } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
@@ -46,8 +46,6 @@ export default function DiagnosisDetailPage({
     API_ROUTES.DOCTOR.DIAGNOSIS_DETAIL(diagnosisId)
   );
 
-  const [lowQualityDialogOpen, setLowQualityDialogOpen] = useState(false);
-
   const isCompleted = diagnosis?.status === DiagnosisStatus.COMPLETED;
   const prediction =
     isCompleted && diagnosis
@@ -59,15 +57,7 @@ export default function DiagnosisDetailPage({
     prediction != null &&
     getMaxProbability(prediction.probabilities) < 0.6;
 
-  // Open the dialog as soon as we detect a low-quality result
-  useEffect(() => {
-    if (isLowQuality) {
-      setLowQualityDialogOpen(true);
-    }
-  }, [isLowQuality]);
-
   const handleLowQualityDismiss = () => {
-    setLowQualityDialogOpen(false);
     router.push(PAGE_ROUTES.DOCTOR.PATIENTS);
   };
 
@@ -86,12 +76,8 @@ export default function DiagnosisDetailPage({
   return (
     <>
       {/* Low-quality / non-fundus image warning dialog */}
-      <Dialog open={lowQualityDialogOpen} onOpenChange={() => {}}>
-        <DialogContent
-          className="sm:max-w-md"
-          onPointerDownOutside={(e) => e.preventDefault()}
-          onEscapeKeyDown={(e) => e.preventDefault()}
-        >
+      <Dialog open={isLowQuality} onOpenChange={() => {}} disablePointerDismissal>
+        <DialogContent className="sm:max-w-md" showCloseButton={false}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-destructive">
               <AlertTriangle className="size-5" />

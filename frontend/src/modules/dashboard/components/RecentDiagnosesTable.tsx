@@ -50,7 +50,7 @@ export function RecentDiagnosesTable({ diagnoses }: RecentDiagnosesTableProps) {
           {diagnoses.map((diagnosis) => {
             const patientName = diagnosis.patient?.[0]
               ? `${diagnosis.patient[0].first_name} ${diagnosis.patient[0].last_name}`
-              : "Unknown";
+              : diagnosis.id;
 
             const prediction = diagnosis.prediction_summary as Record<string, unknown> | null;
             const predictedClass = (prediction?.predictedClass as string) ?? "—";
