@@ -1,11 +1,27 @@
 import { DiagnosisStatus, STORAGE_BUCKETS, TABLES } from "@/lib/constants";
 import { ExternalServiceError } from "@/lib/errors";
-import { getDiagnosisService } from "@/modules/diagnosis";
+import { getDiagnosisService, PredictionSummary } from "@/modules/diagnosis";
 import { getPatientService } from "@/modules/patients";
+import { getDoctorService } from "@/modules/doctors/services/get-doctor.service";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { randomUUID } from "crypto";
-// import ReactPDF from '@react-pdf/renderer'; // Will be used by frontend/backend to generate
-// For now we implement the service structure that calls a dummy generation or standard logic
+import React from "react";
+import ReactPDF from "@react-pdf/renderer";
+import { DiagnosisReportDocument } from "../templates/DiagnosisReportDocument";
+import { ReportDataDto } from "../dto/report-data.dto";
+import { REPORT_CONSTANTS } from "../constants";
+// Helper to download a file from Supabase storage and convert to base64
+async function downloadFileAsBase64(
+  supabase: SupabaseClient,
+  bucket: string,
+  path: string
+): Promise<string | null> {
+  if (!path) return null;
+  const { data, error } = await supabase.storage.from(bucket).download(path);
+  if (error || !data) return null;
+  const buffer = Buffer.from(await data.arrayBuffer());
+  return `data:${data.type};base64,${buffer.toString("base64")}`;
+}
 
 export async function generateReportService(
   supabase: SupabaseClient,
@@ -27,12 +43,76 @@ export async function generateReportService(
   }
 
   try {
-    // 2. Generate PDF (Placeholder for actual @react-pdf/renderer logic)
-    // Normally we'd do: const pdfStream = await ReactPDF.renderToStream(<ReportDocument data={...} />);
-    // For now we create a dummy text file to represent the PDF since we don't have the React component here.
-    const pdfBuffer = Buffer.from(
-      `AntarEye Diagnosis Report for ${patient.firstName} ${patient.lastName}\nDiagnosis ID: ${diagnosisId}\nStatus: ${diagnosis.status}\nPredicted Class: ${diagnosis.predictionSummary.predictedClass}\nConfidence: ${diagnosis.predictionSummary.confidence}`,
+    // 2. Fetch Doctor
+    const doctor = await getDoctorService(supabase, doctorId);
+
+    // 3. Fetch images as base64 for PDF embedding
+    const originalBase64 = await downloadFileAsBase64(
+      supabase,
+      STORAGE_BUCKETS.FUNDUS_IMAGES,
+      diagnosis.originalImageStoragePath
     );
+    let heatmapBase64 = null;
+    if (diagnosis.heatmapStoragePath) {
+      heatmapBase64 = await downloadFileAsBase64(
+        supabase,
+        STORAGE_BUCKETS.HEATMAPS,
+        diagnosis.heatmapStoragePath
+      );
+    }
+
+    // 4. Assemble Report Data
+    const predictionSummary = diagnosis.predictionSummary as PredictionSummary;
+    
+    // Calculate Age
+    const dob = new Date(patient.dateOfBirth);
+    const age = Math.floor((new Date().getTime() - dob.getTime()) / 31557600000);
+
+    const reportData: ReportDataDto = {
+      reportId: diagnosisId,
+      generatedAt: new Date().toISOString(),
+      clinicName: REPORT_CONSTANTS.CLINIC_NAME,
+      patient: {
+        id: patient.id,
+        firstName: patient.firstName,
+        lastName: patient.lastName,
+        dateOfBirth: patient.dateOfBirth,
+        age,
+        gender: patient.gender,
+        phone: patient.phone,
+      },
+      doctor: {
+        fullName: doctor.fullName,
+        email: doctor.email,
+      },
+      diagnosis: {
+        predictedClass: predictionSummary.predictedClass,
+        confidence: predictionSummary.confidence,
+        triageLevel: predictionSummary.triageLevel,
+        probabilities: predictionSummary.probabilities,
+      },
+      recommendations: {
+        doctor: diagnosis.llmDoctorRecommendation,
+        patient: diagnosis.llmPatientRecommendation,
+      },
+      images: {
+        originalBase64,
+        heatmapBase64,
+      },
+    };
+
+    // 5. Generate PDF Buffer via @react-pdf/renderer
+    const pdfStream = await ReactPDF.renderToStream(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      React.createElement(DiagnosisReportDocument, { data: reportData }) as any
+    );
+
+    // Convert NodeJS stream to Buffer
+    const chunks: Buffer[] = [];
+    for await (const chunk of pdfStream) {
+      chunks.push(Buffer.from(chunk));
+    }
+    const pdfBuffer = Buffer.concat(chunks);
 
     // 3. Upload to storage
     const fileName = `${patient.id}/report_${diagnosisId}_${randomUUID()}.pdf`;

@@ -7,68 +7,81 @@ import { Download, Loader2 } from "lucide-react";
 import { extractApiError } from "@/lib/api/extract-error";
 import { toast } from "sonner";
 
+import { ReportViewerModal } from "@/modules/reports/components/ReportViewerModal";
+
 interface DiagnosisActionsProps {
   diagnosisId: string;
   hasReport: boolean;
 }
 
 export function DiagnosisActions({ diagnosisId, hasReport }: DiagnosisActionsProps) {
-  const [isDownloading, setIsDownloading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [reportUrl, setReportUrl] = useState<string | null>(null);
 
-  const handleDownloadReport = async (): Promise<void> => {
-    setIsDownloading(true);
+  const handleViewReport = async (): Promise<void> => {
+    setIsLoading(true);
+    setIsModalOpen(true); // Open modal immediately in loading state
 
     try {
+      // If it has a report, we GET the URL. If not, we POST to generate it.
+      const method = hasReport ? "GET" : "POST";
+      
       const response = await fetch(
         API_ROUTES.DOCTOR.DIAGNOSIS_REPORT(diagnosisId),
-        { method: "POST" }
+        { method }
       );
 
       if (!response.ok) {
         const body = await response.json().catch(() => ({}));
-        throw new Error(extractApiError(body, "Failed to generate report"));
+        throw new Error(extractApiError(body, "Failed to load report"));
       }
 
-      // Try to download as blob
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `diagnosis-report-${diagnosisId}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      const body = await response.json();
+      const url = body.data?.reportUrl;
+      
+      if (!url) {
+        throw new Error("No URL returned from server");
+      }
 
-      toast.success("Report downloaded successfully");
+      setReportUrl(url);
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Failed to download report"
+        err instanceof Error ? err.message : "Failed to load report"
       );
+      setIsModalOpen(false);
     } finally {
-      setIsDownloading(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex items-center gap-2">
-      <Button
-        variant="outline"
-        onClick={() => void handleDownloadReport()}
-        disabled={isDownloading}
-      >
-        {isDownloading ? (
-          <>
-            <Loader2 className="size-4 animate-spin" />
-            Generating…
-          </>
-        ) : (
-          <>
-            <Download className="size-4" />
-            {hasReport ? "Download Report" : "Generate Report"}
-          </>
-        )}
-      </Button>
-    </div>
+    <>
+      <div className="flex items-center gap-2">
+        <Button
+          variant="outline"
+          onClick={() => void handleViewReport()}
+          disabled={isLoading && !isModalOpen}
+        >
+          {isLoading && !isModalOpen ? (
+            <>
+              <Loader2 className="size-4 animate-spin mr-2" />
+              {hasReport ? "Loading…" : "Generating…"}
+            </>
+          ) : (
+            <>
+              <Download className="size-4 mr-2" />
+              {hasReport ? "View Report" : "Generate Report"}
+            </>
+          )}
+        </Button>
+      </div>
+
+      <ReportViewerModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        reportUrl={reportUrl}
+      />
+    </>
   );
 }

@@ -3,7 +3,7 @@ import { ForbiddenError } from "@/lib/errors";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserService } from "@/modules/auth";
 import { downloadReportService, generateReportService } from "@/modules/reports";
-import { NextResponse, type NextRequest } from "next/server";
+import { type NextRequest } from "next/server";
 
 export async function POST(
   request: NextRequest,
@@ -37,8 +37,8 @@ export async function GET(
 
     const result = await downloadReportService(supabase, id, userSession.id);
     
-    // Redirect the client directly to the signed URL to download
-    return NextResponse.redirect(result.reportUrl);
+    // Return the signed URL so the frontend can display it in a modal
+    return successResponse(result, 200);
   } catch (error) {
     return errorResponse(error);
   }
